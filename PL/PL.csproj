@@ -9,4 +9,8 @@
     <PublishAot>true</PublishAot>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>

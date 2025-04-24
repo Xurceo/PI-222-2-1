@@ -10,6 +10,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
+
 var sampleTodos = new Todo[] {
     new(1, "Walk the dog"),
     new(2, "Do the dishes", DateOnly.FromDateTime(DateTime.Now)),
