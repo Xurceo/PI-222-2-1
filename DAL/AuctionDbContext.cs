@@ -10,16 +10,18 @@ namespace DAL
         public DbSet<Bid> Bids { get; set; }
         public DbSet<Category> Categories { get; set; }
 
-        public string DatabasePath { get; }
+        public string _dbPath { get; }
 
         public AuctionDbContext()
         {
-            DatabasePath = "C:\\Users\\dmytr\\source\\repos\\kurs\\DAL\\auction.db";
+            _dbPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "auction.db");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"Data Source={DatabasePath}");
+            optionsBuilder.UseSqlite($"Data Source={_dbPath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
