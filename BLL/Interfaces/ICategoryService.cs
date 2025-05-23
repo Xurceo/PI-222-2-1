@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using BLL.Models;
 
 namespace BLL.Interfaces
 {
     interface ICategoryService
     {
         IEnumerable<CategoryDTO> GetAllCategories();
-        CategoryDTO GetCategoryById(int id);
-        void AddCategory(CategoryDTO categoryDTO);
+        void AddCategory(CategoryDTO category);
+        void UpdateCategory(CategoryDTO category);
+        void DeleteCategory(int id);
     }
 }
