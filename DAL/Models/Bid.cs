@@ -1,12 +1,5 @@
-﻿using DAL.Models;
-
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DAL.Models
 {
@@ -27,6 +20,6 @@ namespace DAL.Models
         public int UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public User? User { get; set; }
+        public required User User { get; set; }
     }
 }

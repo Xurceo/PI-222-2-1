@@ -1,12 +1,5 @@
-﻿using DAL.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DAL.Models
 {
@@ -25,11 +18,11 @@ namespace DAL.Models
 
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
-        public Category? Category { get; set; }
+        public required Category Category { get; set; }
 
         public int OwnerId { get; set; }
         [ForeignKey("OwnerId")]
-        public User? Owner { get; set; }
+        public required User Owner { get; set; }
 
         public int? WinnerId { get; set; }
         [ForeignKey("WinnerId")]
