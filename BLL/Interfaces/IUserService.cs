@@ -4,7 +4,7 @@ namespace BLL.Interfaces
 {
     public interface IUserService
     {
-        void CreateUser(CreateUserDTO dto);
+        int AddUser(CreateUserDTO dto);
         UserDTO? GetById(int id);
         IEnumerable<UserDTO> GetAll();
         void UpdateUser(UserDTO dto);

@@ -1,5 +1,6 @@
 ﻿using DAL.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL
 {
@@ -14,9 +15,8 @@ namespace DAL
 
         public AuctionDbContext()
         {
-            _dbPath = Path.Combine(
-                AppContext.BaseDirectory,
-                "auction.db");
+            var dalDir = Path.GetDirectoryName(AppContext.BaseDirectory);
+            _dbPath = Path.Combine(dalDir, "auction.db");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

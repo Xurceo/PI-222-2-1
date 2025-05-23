@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace BLL.Interfaces
 {
-    interface IBiddingService
+    public interface IBiddingService
     {
-        void PlaceBid(int lotId, int userId, decimal amount);
+        int PlaceBid(int lotId, int userId, decimal amount);
         IEnumerable<BidDTO> GetBidsByLotId(int lotId);
-        BidDTO GetById(int id);
+        BidDTO? GetById(int id);
         IEnumerable<BidDTO> GetAll();
     }
 }

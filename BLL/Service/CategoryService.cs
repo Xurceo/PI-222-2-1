@@ -6,7 +6,7 @@ using DAL.UoW;
 
 namespace BLL.Service
 {
-    class CategoryService : ICategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
@@ -15,12 +15,14 @@ namespace BLL.Service
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public void AddCategory(CategoryDTO dto)
+        public int AddCategory(CategoryDTO dto)
         {
             var category = _mapper.Map<Category>(dto);
 
             _unitOfWork.Categories.Create(category);
             _unitOfWork.Save();
+
+            return category.Id;
         }
         public void DeleteCategory(int id)
         {
@@ -35,7 +37,6 @@ namespace BLL.Service
         public CategoryDTO? GetById(int id)
         {
             var category = _unitOfWork.Categories.GetById(id);
-
             return category != null ? _mapper.Map<CategoryDTO>(category) : null;
         }
         public void UpdateCategory(CategoryDTO dto)

@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
+﻿using System.ComponentModel.DataAnnotations;
 
 
 namespace DAL.Models

@@ -47,7 +47,7 @@ namespace BLL.Service
             }
         }
 
-        public void PlaceBid(int lotId, int userId, decimal amount)
+        public int PlaceBid(int lotId, int userId, decimal amount)
         {
             var lot = _unitOfWork.Lots.GetById(lotId);
             var user = _unitOfWork.Users.GetById(userId);
@@ -66,7 +66,11 @@ namespace BLL.Service
 
                 _unitOfWork.Bids.Create(bid);
                 _unitOfWork.Bids.Save();
+
+                return bid.Id;
             }
+
+            throw new ArgumentException("Lot or User not found");
         }
     }
 }

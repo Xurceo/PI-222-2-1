@@ -18,13 +18,15 @@ namespace BLL.Service
             _unitOfWork = unitOfWork;
         }
 
-        public void CreateUser(CreateUserDTO dto)
+        public int AddUser(CreateUserDTO dto)
         {
             var user = _mapper.Map<User>(dto);
             user.PasswordHash = PasswordHelper.HashPassword(dto.Password); // custom logic
 
             _unitOfWork.Users.Create(user);
             _unitOfWork.Users.Save();
+
+            return user.Id;
         }
 
         public void DeleteUser(int id)

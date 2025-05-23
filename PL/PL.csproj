@@ -1,16 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>PI_222_2_1</RootNamespace>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
+	<TargetFramework>net8.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<RootNamespace>PI_222_2_1</RootNamespace>
+	<InvariantGlobalization>true</InvariantGlobalization>
+	<PublishAot>true</PublishAot>
+	<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+	<CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+	<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.1" />
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.1" />
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="8.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\BLL\BLL.csproj" />
+	<ProjectReference Include="..\DAL\DAL.csproj" />
   </ItemGroup>
 
 </Project>
