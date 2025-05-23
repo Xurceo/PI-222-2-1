@@ -3,7 +3,6 @@ using BLL.Interfaces;
 using BLL.Models;
 using BLL.Utility;
 using DAL.Models;
-using DAL.Repositories;
 using DAL.UoW;
 
 namespace BLL.Service
@@ -34,13 +33,13 @@ namespace BLL.Service
             _unitOfWork.Users.Save();
         }
 
-        public IEnumerable<UserDTO> GetAllUsers()
+        public IEnumerable<UserDTO> GetAll()
         {
             var users = _unitOfWork.Users.GetAll();
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        public UserDTO? GetUserById(int id)
+        public UserDTO? GetById(int id)
         {
             var user = _unitOfWork.Users.GetById(id);
             return user != null ? _mapper.Map<UserDTO>(user) : null;

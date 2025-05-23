@@ -7,5 +7,7 @@ namespace BLL.Interfaces
     {
         void PlaceBid(int lotId, int userId, decimal amount);
         IEnumerable<BidDTO> GetBidsByLotId(int lotId);
+        BidDTO GetById(int id);
+        IEnumerable<BidDTO> GetAll();
     }
 }

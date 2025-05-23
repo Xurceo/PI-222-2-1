@@ -27,12 +27,12 @@ namespace BLL.Service
             _unitOfWork.Categories.Delete(id);
             _unitOfWork.Save();
         }
-        public IEnumerable<CategoryDTO> GetAllCategories()
+        public IEnumerable<CategoryDTO> GetAll()
         {
             var categories = _unitOfWork.Categories.GetAll();
             return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
         }
-        public CategoryDTO? GetCategoryById(int id)
+        public CategoryDTO? GetById(int id)
         {
             var category = _unitOfWork.Categories.GetById(id);
 

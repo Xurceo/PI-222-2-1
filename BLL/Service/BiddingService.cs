@@ -21,6 +21,18 @@ namespace BLL.Service
             _unitOfWork.Bids.Save();
         }
 
+        public BidDTO? GetById(int id)
+        {
+            var bid = _unitOfWork.Bids.GetById(id);
+            return bid != null ? _mapper.Map<BidDTO>(bid) : null;
+        }
+
+        public IEnumerable<BidDTO> GetAll()
+        {
+            var bids = _unitOfWork.Bids.GetAll();
+            return _mapper.Map<IEnumerable<BidDTO>>(bids);
+        }
+
         public IEnumerable<BidDTO> GetBidsByLotId(int lotId)
         {
             var lot = _unitOfWork.Lots.GetById(lotId);
