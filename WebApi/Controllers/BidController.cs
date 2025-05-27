@@ -1,5 +1,5 @@
-﻿using BLL.Interfaces;
-using BLL.Models;
+﻿using BLL.DTOs;
+using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -24,7 +24,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<BidDTO> GetById(int id)
+        public ActionResult<BidDTO> GetById(Guid id)
         {
             var bid = _biddingService.GetById(id);
             if (bid == null)
@@ -35,7 +35,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("lot/{lotId}")]
-        public ActionResult<IEnumerable<BidDTO>> GetBidsByLotId(int lotId)
+        public ActionResult<IEnumerable<BidDTO>> GetBidsByLotId(Guid lotId)
         {
             var bids = _biddingService.GetBidsByLotId(lotId);
             if (bids == null || !bids.Any())
@@ -46,10 +46,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<int> PlaceBid(int lotId, int userId, decimal amount)
+        public ActionResult<int> PlaceBid([FromBody] BidDTO dto)
         {
-            var id = _biddingService.PlaceBid(lotId, userId, amount);
-            return CreatedAtAction(nameof(GetById), new { id }, null);
+            var id = _biddingService.PlaceBid(dto);
+            return CreatedAtAction(nameof(PlaceBid), new { id }, dto);
         }
     }
 }

@@ -1,14 +1,15 @@
-﻿using BLL.Models;
+﻿using BLL.CreateDTOs;
+using BLL.DTOs;
 
 namespace BLL.Interfaces
 {
     public interface IUserService
     {
-        int AddUser(CreateUserDTO dto);
-        UserDTO? GetById(int id);
+        Guid AddUser(CreateUserDTO dto);
+        UserDTO? GetById(Guid id);
         IEnumerable<UserDTO> GetAll();
         void UpdateUser(UserDTO dto);
-        void DeleteUser(int id);
-        void UpdateUserPassword(int id, string newPassword);
+        void DeleteUser(Guid id);
+        void UpdateUserPassword(Guid id, string newPassword);
     }
 }

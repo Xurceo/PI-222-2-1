@@ -1,6 +1,9 @@
-﻿using BLL.Interfaces;
-using BLL.Models;
+﻿using AutoMapper;
+using BLL.Interfaces;
+using BLL.DTOs;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
+using BLL.CreateDTOs;
 
 namespace WebApi.Controllers
 {
@@ -15,16 +18,15 @@ namespace WebApi.Controllers
             _categoryService = categoryService;
         }
 
-        // Добавьте методы аналогично UserController, используя методы ICategoryService
         [HttpGet]
-        public ActionResult<CategoryDTO> GetAll()
+        public ActionResult<IEnumerable<CategoryDTO>> GetAll()
         {
             var categories = _categoryService.GetAll();
             return Ok(categories);
         }
 
-        [HttpGet("{id:int}")]
-        public ActionResult<CategoryDTO> GetById(int id)
+        [HttpGet("{id}")]
+        public ActionResult<CategoryDTO> GetById(Guid id)
         {
             var category = _categoryService.GetById(id);
             if (category == null)
@@ -35,14 +37,18 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<CategoryDTO> Create([FromBody] CategoryDTO categoryDto)
+        public ActionResult<CategoryDTO> AddCategory([FromBody] CreateCategoryDTO dto)
         {
-            if (categoryDto == null)
-            {
-                return BadRequest();
-            }
-            var id = _categoryService.AddCategory(categoryDto);
-            return CreatedAtAction(nameof(GetById), new { id }, categoryDto);
+            var id = _categoryService.AddCategory(dto);
+
+            return CreatedAtAction(nameof(AddCategory), new { id }, dto);
+        }
+
+        [HttpPost("update")]
+        public ActionResult<CategoryDTO> UpdateCategory([FromBody] CategoryDTO dto)
+        {
+            _categoryService.UpdateCategory(dto);
+            return NoContent();
         }
     }
 }

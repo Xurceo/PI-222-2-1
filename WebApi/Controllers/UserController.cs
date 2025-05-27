@@ -1,6 +1,8 @@
 ﻿using BLL.Interfaces;
-using BLL.Models;
+using BLL.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using BLL.CreateDTOs;
 
 namespace WebApi.Controllers
 {
@@ -22,8 +24,8 @@ namespace WebApi.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id:int}")]
-        public ActionResult<UserDTO> GetById(int id)
+        [HttpGet("{id}")]
+        public ActionResult<UserDTO> GetById(Guid id)
         {
             var user = _userService.GetById(id);
             if (user == null)
@@ -32,10 +34,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult Add([FromBody] CreateUserDTO dto)
+        public ActionResult AddUser([FromBody] CreateUserDTO dto)
         {
             var id = _userService.AddUser(dto);
-            return Created($"/api/users/{id}", null);
+            return CreatedAtAction(nameof(AddUser), new { id }, dto);
         }
     }
 }

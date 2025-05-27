@@ -1,13 +1,13 @@
-﻿using BLL.Models;
+﻿using BLL.DTOs;
 using System.Collections.Generic;
 
 namespace BLL.Interfaces
 {
     public interface IBiddingService
     {
-        int PlaceBid(int lotId, int userId, decimal amount);
-        IEnumerable<BidDTO> GetBidsByLotId(int lotId);
-        BidDTO? GetById(int id);
+        Guid PlaceBid(BidDTO dto);
+        IEnumerable<BidDTO> GetBidsByLotId(Guid lotId);
+        BidDTO? GetById(Guid id);
         IEnumerable<BidDTO> GetAll();
     }
 }

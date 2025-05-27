@@ -1,12 +1,15 @@
-﻿namespace DAL.Repositories
+﻿using System.Linq.Expressions;
+
+namespace DAL.Repositories
 {
     public interface IGenericRepository<TModel> where TModel : class
     {
-        TModel GetById(int id);
-        IEnumerable<TModel> GetAll();
+        TModel GetById(Guid id);
+        IEnumerable<TModel> GetAll(params Expression<Func<TModel, object>>[] includeProperties);
         void Create(TModel model);
         void Update(TModel model);
-        void Delete(int id);
+        void Delete(Guid id);
         void Save();
+        bool Exists(Guid value);
     }
 }

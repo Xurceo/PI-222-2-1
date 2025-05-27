@@ -1,14 +1,15 @@
-﻿using BLL.Models;
+﻿using BLL.CreateDTOs;
+using BLL.DTOs;
 
 namespace BLL.Interfaces
 {
     public interface ILottingService
     {
         IEnumerable<LotDTO> GetAll();
-        IEnumerable<LotDTO> GetAllByCategoryId(int categoryId);
-        LotDTO? GetById(int id);
-        int AddLot(LotDTO lot);
+        IEnumerable<LotDTO> GetAllByCategoryId(Guid categoryId);
+        LotDTO? GetById(Guid id);
+        Guid AddLot(CreateLotDTO lot);
         void UpdateLot(LotDTO lot);
-        void DeleteLot(int id);
+        void DeleteLot(Guid id);
     }
 }

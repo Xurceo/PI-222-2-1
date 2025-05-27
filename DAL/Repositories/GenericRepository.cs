@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DAL.Repositories
 {
@@ -13,14 +14,19 @@ namespace DAL.Repositories
             _dbSet = _context.Set<TModel>();
         }
 
-        public TModel GetById(int id)
+        public TModel GetById(Guid id)
         {
             return _dbSet.Find(id);
         }
 
-        public IEnumerable<TModel> GetAll()
+        public IEnumerable<TModel> GetAll(params Expression<Func<TModel, object>>[] includeProperties)
         {
-            return _dbSet.ToList();
+            IQueryable<TModel> query = _dbSet;
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+            return query.ToList();
         }
 
         public void Create(TModel model)
@@ -33,7 +39,7 @@ namespace DAL.Repositories
             _dbSet.Update(model);
         }
 
-        public void Delete(int id)
+        public void Delete(Guid id)
         {
             var entity = _dbSet.Find(id);
             if (entity != null)
@@ -42,6 +48,10 @@ namespace DAL.Repositories
             }
         }
 
+        public bool Exists(Guid id)
+        {
+            return _dbSet.Any(e => EF.Property<Guid>(e, "Id") == id);
+        }
         public void Save()
         {
             try

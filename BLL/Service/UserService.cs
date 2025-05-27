@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using BLL.Interfaces;
-using BLL.Models;
+using BLL.DTOs;
 using BLL.Utility;
 using DAL.Models;
 using DAL.UoW;
+using BLL.CreateDTOs;
 
 namespace BLL.Service
 {
@@ -18,7 +19,7 @@ namespace BLL.Service
             _unitOfWork = unitOfWork;
         }
 
-        public int AddUser(CreateUserDTO dto)
+        public Guid AddUser(CreateUserDTO dto)
         {
             var user = _mapper.Map<User>(dto);
             user.PasswordHash = PasswordHelper.HashPassword(dto.Password); // custom logic
@@ -29,7 +30,7 @@ namespace BLL.Service
             return user.Id;
         }
 
-        public void DeleteUser(int id)
+        public void DeleteUser(Guid id)
         {
             _unitOfWork.Users.Delete(id);
             _unitOfWork.Users.Save();
@@ -41,7 +42,7 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        public UserDTO? GetById(int id)
+        public UserDTO? GetById(Guid id)
         {
             var user = _unitOfWork.Users.GetById(id);
             return user != null ? _mapper.Map<UserDTO>(user) : null;
@@ -49,12 +50,14 @@ namespace BLL.Service
 
         public void UpdateUser(UserDTO dto)
         {
-            var user = _mapper.Map<User>(dto);
+            var user = _unitOfWork.Users.GetById(dto.Id);
+            _mapper.Map(dto, user);
+
             _unitOfWork.Users.Update(user);
-            _unitOfWork.Users.Save();
+            _unitOfWork.Users.Save();   
         }
 
-        public void UpdateUserPassword(int id, string newPassword)
+        public void UpdateUserPassword(Guid id, string newPassword)
         {
             var user = _unitOfWork.Users.GetById(id);
             if (user != null)

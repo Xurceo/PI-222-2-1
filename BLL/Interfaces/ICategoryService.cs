@@ -1,13 +1,14 @@
-﻿using BLL.Models;
+﻿using BLL.CreateDTOs;
+using BLL.DTOs;
 
 namespace BLL.Interfaces
 {
     public interface ICategoryService
     {
         IEnumerable<CategoryDTO> GetAll();
-        CategoryDTO? GetById(int id);
-        int AddCategory(CategoryDTO category);
+        CategoryDTO? GetById(Guid id);
+        Guid AddCategory(CreateCategoryDTO category);
         void UpdateCategory(CategoryDTO category);
-        void DeleteCategory(int id);
+        void DeleteCategory(Guid id);
     }
 }
