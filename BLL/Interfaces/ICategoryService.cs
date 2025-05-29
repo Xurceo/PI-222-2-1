@@ -5,10 +5,10 @@ namespace BLL.Interfaces
 {
     public interface ICategoryService
     {
-        IEnumerable<CategoryDTO> GetAll();
-        CategoryDTO? GetById(Guid id);
-        Guid AddCategory(CreateCategoryDTO category);
-        void UpdateCategory(CategoryDTO category);
-        void DeleteCategory(Guid id);
+        Task<IEnumerable<CategoryDTO>> GetAll();
+        Task<CategoryDTO?> GetById(Guid id);
+        Task<Guid> AddCategory(CreateCategoryDTO category);
+        Task UpdateCategory(CategoryDTO category);
+        Task DeleteCategory(Guid id);
     }
 }

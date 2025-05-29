@@ -15,18 +15,17 @@ namespace WebApi.Controllers
             _biddingService = biddingService;
         }
 
-        // Добавьте методы аналогично UserController, используя методы IBiddingService
         [HttpGet]
-        public ActionResult<IEnumerable<BidDTO>> GetAll()
+        public async Task<ActionResult<IEnumerable<BidDTO>>> GetAll()
         {
-            var bids = _biddingService.GetAll();
+            var bids = await _biddingService.GetAll();
             return Ok(bids);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<BidDTO> GetById(Guid id)
+        public async Task<ActionResult<BidDTO>> GetById(Guid id)
         {
-            var bid = _biddingService.GetById(id);
+            var bid = await _biddingService.GetById(id);
             if (bid == null)
             {
                 return NotFound();
@@ -35,9 +34,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("lot/{lotId}")]
-        public ActionResult<IEnumerable<BidDTO>> GetBidsByLotId(Guid lotId)
+        public async Task<ActionResult<IEnumerable<BidDTO>>> GetBidsByLotId(Guid lotId)
         {
-            var bids = _biddingService.GetBidsByLotId(lotId);
+            var bids = await _biddingService.GetBidsByLotId(lotId);
             if (bids == null || !bids.Any())
             {
                 return NotFound();
@@ -46,10 +45,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        public ActionResult<int> PlaceBid([FromBody] BidDTO dto)
+        public async Task<ActionResult<Guid>> PlaceBid([FromBody] BidDTO dto)
         {
-            var id = _biddingService.PlaceBid(dto);
+            var id = await _biddingService.PlaceBid(dto);
             return CreatedAtAction(nameof(PlaceBid), new { id }, dto);
         }
     }
 }
+

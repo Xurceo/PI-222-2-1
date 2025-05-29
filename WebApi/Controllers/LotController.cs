@@ -1,8 +1,7 @@
-﻿using BLL.Interfaces;
-using BLL.DTOs;
-using BLL.Service;
-using Microsoft.AspNetCore.Mvc;
+﻿using BLL.DTOs;
 using BLL.CreateDTOs;
+using BLL.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
@@ -11,50 +10,53 @@ namespace WebApi.Controllers
     public class LotController : ControllerBase
     {
         private readonly ILottingService _lottingService;
-        private readonly IUserService _userService;
-        private readonly ICategoryService _categoryService;
-
-        public LotController(
-            ILottingService lottingService,
-            IUserService userService,
-            ICategoryService categoryService
-            )
+        public LotController(ILottingService lottingService)
         {
             _lottingService = lottingService;
-            _userService = userService;
-            _categoryService = categoryService;
-
         }
 
-        // Добавьте методы аналогично UserController, используя методы ILottingService
         [HttpGet]
-        public ActionResult<IEnumerable<LotDTO>> GetAll()
+        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAll()
         {
-            var lots = _lottingService.GetAll();
+            var lots = await _lottingService.GetAll();
             return Ok(lots);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<LotDTO> GetById(Guid id)
+        public async Task<ActionResult<LotDTO>> GetById(Guid id)
         {
-            var user = _lottingService.GetById(id);
-            if (user == null)
+            var lot = await _lottingService.GetById(id);
+            if (lot == null)
                 return NotFound();
-            return Ok(user);
+            return Ok(lot);
+        }
+
+        [HttpGet("category/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAllByCategoryId(Guid categoryId)
+        {
+            var lots = await _lottingService.GetAllByCategoryId(categoryId);
+            return Ok(lots);
         }
 
         [HttpPost]
-        public ActionResult AddLot([FromBody] CreateLotDTO dto)
+        public async Task<ActionResult<Guid>> AddLot([FromBody] CreateLotDTO dto)
         {
-            var owner = _userService.GetById(dto.OwnerId);
-            if (owner == null)
-                return NotFound($"User with id {dto.OwnerId} not found");
-            var category = _categoryService.GetById(dto.CategoryId);
-            if (category == null)
-                return NotFound($"Category with id {dto.CategoryId} not found");
+            var id = await _lottingService.AddLot(dto);
+            return CreatedAtAction(nameof(GetById), new { id }, dto);
+        }
 
-            var id = _lottingService.AddLot(dto);
-            return CreatedAtAction(nameof(AddLot), new { id }, dto);
+        [HttpPut]
+        public async Task<IActionResult> UpdateLot([FromBody] LotDTO dto)
+        {
+            await _lottingService.UpdateLot(dto);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLot(Guid id)
+        {
+            await _lottingService.DeleteLot(id);
+            return NoContent();
         }
     }
 }

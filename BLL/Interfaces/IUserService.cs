@@ -5,11 +5,11 @@ namespace BLL.Interfaces
 {
     public interface IUserService
     {
-        Guid AddUser(CreateUserDTO dto);
-        UserDTO? GetById(Guid id);
-        IEnumerable<UserDTO> GetAll();
-        void UpdateUser(UserDTO dto);
-        void DeleteUser(Guid id);
-        void UpdateUserPassword(Guid id, string newPassword);
+        Task<Guid> AddUser(CreateUserDTO dto);
+        Task<UserDTO?> GetById(Guid id);
+        Task<IEnumerable<UserDTO>> GetAll();
+        Task UpdateUser(UserDTO dto);
+        Task DeleteUser(Guid id);
+        Task UpdateUserPassword(Guid id, string newPassword);
     }
 }

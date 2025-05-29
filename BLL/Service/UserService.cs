@@ -19,52 +19,55 @@ namespace BLL.Service
             _unitOfWork = unitOfWork;
         }
 
-        public Guid AddUser(CreateUserDTO dto)
+        public async Task<Guid> AddUser(CreateUserDTO dto)
         {
             var user = _mapper.Map<User>(dto);
-            user.PasswordHash = PasswordHelper.HashPassword(dto.Password); // custom logic
+            user.PasswordHash = PasswordHelper.HashPassword(dto.Password);
 
-            _unitOfWork.Users.Create(user);
-            _unitOfWork.Users.Save();
+            await _unitOfWork.Users.Create(user);
+            await _unitOfWork.Users.Save();
 
             return user.Id;
         }
 
-        public void DeleteUser(Guid id)
+        public async Task DeleteUser(Guid id)
         {
             _unitOfWork.Users.Delete(id);
-            _unitOfWork.Users.Save();
+            await _unitOfWork.Users.Save();
         }
 
-        public IEnumerable<UserDTO> GetAll()
+        public async Task<IEnumerable<UserDTO>> GetAll()
         {
-            var users = _unitOfWork.Users.GetAll();
+            var users = await _unitOfWork.Users.GetAll();
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
-        public UserDTO? GetById(Guid id)
+        public async Task<UserDTO?> GetById(Guid id)
         {
-            var user = _unitOfWork.Users.GetById(id);
+            var user = await _unitOfWork.Users.GetById(id);
             return user != null ? _mapper.Map<UserDTO>(user) : null;
         }
 
-        public void UpdateUser(UserDTO dto)
+        public async Task UpdateUser(UserDTO dto)
         {
-            var user = _unitOfWork.Users.GetById(dto.Id);
+            var user = await _unitOfWork.Users.GetById(dto.Id);
+            if (user == null)
+                throw new Exception("User not found");
+
             _mapper.Map(dto, user);
 
-            _unitOfWork.Users.Update(user);
-            _unitOfWork.Users.Save();   
+            await _unitOfWork.Users.Update(user);
+            await _unitOfWork.Users.Save();
         }
 
-        public void UpdateUserPassword(Guid id, string newPassword)
+        public async Task UpdateUserPassword(Guid id, string newPassword)
         {
-            var user = _unitOfWork.Users.GetById(id);
+            var user = await _unitOfWork.Users.GetById(id);
             if (user != null)
             {
-                user.PasswordHash = PasswordHelper.HashPassword(newPassword); // custom logic
-                _unitOfWork.Users.Update(user);
-                _unitOfWork.Users.Save();
+                user.PasswordHash = PasswordHelper.HashPassword(newPassword);
+                await _unitOfWork.Users.Update(user);
+                await _unitOfWork.Users.Save();
             }
             else
             {

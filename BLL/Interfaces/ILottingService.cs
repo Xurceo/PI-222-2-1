@@ -5,11 +5,11 @@ namespace BLL.Interfaces
 {
     public interface ILottingService
     {
-        IEnumerable<LotDTO> GetAll();
-        IEnumerable<LotDTO> GetAllByCategoryId(Guid categoryId);
-        LotDTO? GetById(Guid id);
-        Guid AddLot(CreateLotDTO lot);
-        void UpdateLot(LotDTO lot);
-        void DeleteLot(Guid id);
+        Task<IEnumerable<LotDTO>> GetAll();
+        Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId);
+        Task<LotDTO?> GetById(Guid id);
+        Task<Guid> AddLot(CreateLotDTO lot);
+        Task UpdateLot(LotDTO lot);
+        Task DeleteLot(Guid id);
     }
 }

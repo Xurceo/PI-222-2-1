@@ -1,9 +1,7 @@
-﻿using AutoMapper;
-using BLL.Interfaces;
-using BLL.DTOs;
-using DAL.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using BLL.DTOs;
 using BLL.CreateDTOs;
+using BLL.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
@@ -12,44 +10,46 @@ namespace WebApi.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-
         public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CategoryDTO>> GetAll()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAll()
         {
-            var categories = _categoryService.GetAll();
+            var categories = await _categoryService.GetAll();
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<CategoryDTO> GetById(Guid id)
+        public async Task<ActionResult<CategoryDTO>> GetById(Guid id)
         {
-            var category = _categoryService.GetById(id);
+            var category = await _categoryService.GetById(id);
             if (category == null)
-            {
                 return NotFound();
-            }
             return Ok(category);
         }
 
         [HttpPost]
-        public ActionResult<CategoryDTO> AddCategory([FromBody] CreateCategoryDTO dto)
+        public async Task<ActionResult<Guid>> AddCategory([FromBody] CreateCategoryDTO dto)
         {
-            var id = _categoryService.AddCategory(dto);
-
-            return CreatedAtAction(nameof(AddCategory), new { id }, dto);
+            var id = await _categoryService.AddCategory(dto);
+            return CreatedAtAction(nameof(GetById), new { id }, dto);
         }
 
-        [HttpPost("update")]
-        public ActionResult<CategoryDTO> UpdateCategory([FromBody] CategoryDTO dto)
+        [HttpPut]
+        public async Task<IActionResult> UpdateCategory([FromBody] CategoryDTO dto)
         {
-            _categoryService.UpdateCategory(dto);
+            await _categoryService.UpdateCategory(dto);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            await _categoryService.DeleteCategory(id);
             return NoContent();
         }
     }
 }
-

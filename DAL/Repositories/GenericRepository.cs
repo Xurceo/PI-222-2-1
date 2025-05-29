@@ -14,29 +14,30 @@ namespace DAL.Repositories
             _dbSet = _context.Set<TModel>();
         }
 
-        public TModel GetById(Guid id)
+        public async Task<TModel> GetById(Guid id)
         {
-            return _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public IEnumerable<TModel> GetAll(params Expression<Func<TModel, object>>[] includeProperties)
+        public async Task<IEnumerable<TModel>> GetAll(params Expression<Func<TModel, object>>[] includeProperties)
         {
             IQueryable<TModel> query = _dbSet;
             foreach (var includeProperty in includeProperties)
             {
                 query = query.Include(includeProperty);
             }
-            return query.ToList();
+            return await query.ToListAsync();
         }
 
-        public void Create(TModel model)
+        public async Task Create(TModel model)
         {
-            _dbSet.Add(model);
+            await _dbSet.AddAsync(model);
         }
 
-        public void Update(TModel model)
+        public Task Update(TModel model)
         {
             _dbSet.Update(model);
+            return Task.CompletedTask;
         }
 
         public void Delete(Guid id)
@@ -48,15 +49,16 @@ namespace DAL.Repositories
             }
         }
 
-        public bool Exists(Guid id)
+        public async Task<bool> Exists(Guid id)
         {
-            return _dbSet.Any(e => EF.Property<Guid>(e, "Id") == id);
+            return await _dbSet.AnyAsync(e => EF.Property<Guid>(e, "Id") == id);
         }
-        public void Save()
+
+        public async Task Save()
         {
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
             {

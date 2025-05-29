@@ -15,27 +15,27 @@ namespace BLL.Service
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public void DeleteBid(Guid id)
+        public async Task DeleteBid(Guid id)
         {
             _unitOfWork.Bids.Delete(id);
-            _unitOfWork.Bids.Save();
+            await _unitOfWork.Bids.Save();
         }
 
-        public BidDTO? GetById(Guid id)
+        public async Task<BidDTO?> GetById(Guid id)
         {
-            var bid = _unitOfWork.Bids.GetById(id);
+            var bid = await _unitOfWork.Bids.GetById(id);
             return bid != null ? _mapper.Map<BidDTO>(bid) : null;
         }
 
-        public IEnumerable<BidDTO> GetAll()
+        public async Task<IEnumerable<BidDTO>> GetAll()
         {
-            var bids = _unitOfWork.Bids.GetAll();
+            var bids = await _unitOfWork.Bids.GetAll();
             return _mapper.Map<IEnumerable<BidDTO>>(bids);
         }
 
-        public IEnumerable<BidDTO> GetBidsByLotId(Guid lotId)
+        public async Task<IEnumerable<BidDTO>> GetBidsByLotId(Guid lotId)
         {
-            var lot = _unitOfWork.Lots.GetById(lotId);
+            var lot = await _unitOfWork.Lots.GetById(lotId);
             if (lot is not null)
             {
                 var bids = lot.Bids;
@@ -47,10 +47,10 @@ namespace BLL.Service
             }
         }
 
-        public Guid PlaceBid(BidDTO dto)
+        public async Task<Guid> PlaceBid(BidDTO dto)
         {
-            var lot = _unitOfWork.Lots.GetById(dto.Lot.Id);
-            var user = _unitOfWork.Users.GetById(dto.User.Id);
+            var lot = await _unitOfWork.Lots.GetById(dto.Lot.Id);
+            var user = await _unitOfWork.Users.GetById(dto.User.Id);
             if (lot is null)
             {
                 throw new ArgumentException("Lot not found");
@@ -100,17 +100,17 @@ namespace BLL.Service
             lot.WinnerId = lot.Bids.OrderByDescending(b => b.Amount).FirstOrDefault()?.UserId;
             if (lot.WinnerId.HasValue)
             {
-                lot.Winner = _unitOfWork.Users.GetById(lot.WinnerId.Value);
+                lot.Winner = await _unitOfWork.Users.GetById(lot.WinnerId.Value);
             }
             else
             {
                 lot.Winner = null;
             }
 
-            _unitOfWork.Bids.Create(bid);
-            _unitOfWork.Lots.Update(lot);
-            _unitOfWork.Users.Update(user);
-            _unitOfWork.Bids.Save();
+            await _unitOfWork.Bids.Create(bid);
+            await _unitOfWork.Lots.Update(lot);
+            await _unitOfWork.Users.Update(user);
+            await _unitOfWork.Bids.Save();
             return bid.Id;
         }
     }
