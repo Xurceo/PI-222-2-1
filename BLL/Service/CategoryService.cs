@@ -41,7 +41,7 @@ namespace BLL.Service
         }
         public async Task<IEnumerable<CategoryDTO>> GetAll()
         {
-            var categories = await _unitOfWork.Categories.GetAll(c => c.Lots);
+            var categories = await _unitOfWork.Categories.GetAll(c => c.Lots, c => c.Subcategories);
             return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
         }
         public async Task<CategoryDTO?> GetById(Guid id)

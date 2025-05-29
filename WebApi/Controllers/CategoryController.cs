@@ -2,6 +2,7 @@
 using BLL.CreateDTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -31,6 +32,7 @@ namespace WebApi.Controllers
             return Ok(category);
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddCategory([FromBody] CreateCategoryDTO dto)
         {
@@ -38,13 +40,16 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id }, dto);
         }
 
+
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPut]
         public async Task<IActionResult> UpdateCategory([FromBody] CategoryDTO dto)
         {
             await _categoryService.UpdateCategory(dto);
             return NoContent();
         }
-
+        
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {

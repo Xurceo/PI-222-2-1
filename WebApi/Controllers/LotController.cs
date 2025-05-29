@@ -4,7 +4,7 @@ using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using BLL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
@@ -41,20 +41,34 @@ namespace WebApi.Controllers
             return Ok(lots);
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddLot([FromBody] CreateLotDTO dto)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            dto.OwnerId = Guid.Parse(userId);
+
             var id = await _lottingService.AddLot(dto);
             return CreatedAtAction(nameof(GetById), new { id }, dto);
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPut]
         public async Task<IActionResult> UpdateLot([FromBody] LotDTO dto)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)
+                || !Guid.TryParse(userId, out Guid userGuid) && userGuid != dto.Owner.Id)
+                return Unauthorized("You are not authorized to update this lot.");
             await _lottingService.UpdateLot(dto);
             return NoContent();
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLot(Guid id)
         {
@@ -77,7 +91,7 @@ namespace WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles="MANAGER")]
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPut("{lotId}/confirm")]
         public async Task<ActionResult<Guid>> ConfirmLot(Guid lotId)
         {

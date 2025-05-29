@@ -15,11 +15,8 @@ namespace BLL.MappingProfiles
             CreateMap<CreateUserDTO, User>();
 
             // Bid <-> BidDTO
-            CreateMap<Bid, BidDTO>()
-                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
-                .ForMember(dest => dest.Lot, opt => opt.MapFrom(src => src.Lot));
+            CreateMap<Bid, BidDTO>();
             CreateMap<BidDTO, Bid>();
-
 
             // Lot <-> LotDTO
             CreateMap<Lot, LotDTO>();
@@ -27,9 +24,7 @@ namespace BLL.MappingProfiles
             CreateMap<CreateLotDTO, Lot>();
 
             // Category <-> CategoryDTO
-            CreateMap<Category, CategoryDTO>()
-                .ForMember(dest => dest.Subcategories, opt => opt.MapFrom(src => src.Subcategories))
-                .ForMember(dest => dest.Lots, opt => opt.MapFrom(src => src.Lots));
+            CreateMap<Category, CategoryDTO>();
             CreateMap<CategoryDTO, Category>();
             CreateMap<CreateCategoryDTO, Category>();
         }

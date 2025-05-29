@@ -14,9 +14,23 @@ namespace DAL.Repositories
             _dbSet = _context.Set<TModel>();
         }
 
-        public async Task<TModel> GetById(Guid id)
+        public async Task<TModel?> GetById(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            IQueryable<TModel> query = _dbSet;
+
+            var navigationProperties = _context.Model.FindEntityType(typeof(TModel))?
+                .GetNavigations()
+                .Select(n => n.Name);
+
+            if (navigationProperties != null)
+            {
+                foreach (var navProperty in navigationProperties)
+                {
+                    query = query.Include(navProperty);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
         }
 
         public async Task<IEnumerable<TModel>> GetAll(params Expression<Func<TModel, object>>[] includeProperties)

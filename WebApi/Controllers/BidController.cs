@@ -1,8 +1,8 @@
-﻿using BLL.CreateDTOs;
-using BLL.DTOs;
+﻿using BLL.DTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
@@ -50,7 +50,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Guid>> PlaceBid(Guid lotId, decimal amount)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Guid userGuid;
             if (!string.IsNullOrEmpty(userId))
                 userGuid = Guid.Parse(userId);

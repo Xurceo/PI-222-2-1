@@ -21,7 +21,11 @@ namespace BLL.Service
         public async Task<Guid> AddLot(CreateLotDTO dto)
         {
             var lot = _mapper.Map<Lot>(dto);
-            var owner = await _unitOfWork.Users.GetById(dto.OwnerId);
+            if (dto.OwnerId == null)
+            {
+                throw new ArgumentException("OwnerId cannot be null");
+            }
+            var owner = await _unitOfWork.Users.GetById(dto.OwnerId.Value);
             if (owner == null)
             {
                 throw new ArgumentException($"User with id {dto.OwnerId} not found");

@@ -2,6 +2,8 @@
 using BLL.CreateDTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
@@ -31,6 +33,7 @@ namespace WebApi.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddUser([FromBody] CreateUserDTO dto)
         {
@@ -38,6 +41,7 @@ namespace WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id }, dto);
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPut]
         public async Task<IActionResult> UpdateUser([FromBody] UserDTO dto)
         {
@@ -45,6 +49,7 @@ namespace WebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
@@ -55,6 +60,12 @@ namespace WebApi.Controllers
         [HttpPut("{id}/password")]
         public async Task<IActionResult> UpdateUserPassword(Guid id, [FromBody] string newPassword)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userGuid = string.IsNullOrEmpty(userId) ? Guid.Empty : Guid.Parse(userId);
+            if (userGuid != id && !User.IsInRole("ADMIN") && !User.IsInRole("MANAGER"))
+            {
+                return Forbid();
+            }
             await _userService.UpdateUserPassword(id, newPassword);
             return NoContent();
         }

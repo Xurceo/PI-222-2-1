@@ -30,7 +30,7 @@ namespace BLL.Service
 
         public async Task<IEnumerable<BidDTO>> GetAll()
         {
-            var bids = await _unitOfWork.Bids.GetAll();
+            var bids = await _unitOfWork.Bids.GetAll(b => b.User, b => b.Lot);
             return _mapper.Map<IEnumerable<BidDTO>>(bids);
         }
 
