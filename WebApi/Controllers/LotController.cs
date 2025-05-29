@@ -2,6 +2,9 @@
 using BLL.CreateDTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using BLL.Exceptions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApi.Controllers
 {
@@ -55,8 +58,46 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLot(Guid id)
         {
-            await _lottingService.DeleteLot(id);
+            try
+            {
+                await _lottingService.DeleteLot(id);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             return NoContent();
+        }
+
+        [Authorize(Roles="MANAGER")]
+        [HttpPut("{lotId}/confirm")]
+        public async Task<ActionResult<Guid>> ConfirmLot(Guid lotId)
+        {
+            try
+            {
+                await _lottingService.ConfirmLot(lotId);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok($"Lot with id: {lotId} confirmed");
         }
     }
 }

@@ -24,7 +24,7 @@ const filteredLots = computed(() => {
 });
 
 onMounted(async () => {
-  category.value = await fetchCategoryById(parseInt(props.id));
+  category.value = await fetchCategoryById(props.id);
   lots.value = await fetchLots();
 });
 

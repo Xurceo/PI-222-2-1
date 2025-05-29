@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BLL.CreateDTOs;
 using BLL.DTOs;
 using BLL.Interfaces;
 using DAL.Models;
@@ -47,10 +48,10 @@ namespace BLL.Service
             }
         }
 
-        public async Task<Guid> PlaceBid(BidDTO dto)
+        public async Task<Guid> PlaceBid(Guid userId, Guid lotId, decimal amount)
         {
-            var lot = await _unitOfWork.Lots.GetById(dto.Lot.Id);
-            var user = await _unitOfWork.Users.GetById(dto.User.Id);
+            var lot = await _unitOfWork.Lots.GetById(lotId);
+            var user = await _unitOfWork.Users.GetById(userId);
             if (lot is null)
             {
                 throw new ArgumentException("Lot not found");
@@ -60,10 +61,16 @@ namespace BLL.Service
                 throw new ArgumentException("User not found");
             }
 
-            var bid = _mapper.Map<Bid>(dto);
-            bid.Time = DateTime.UtcNow;
-            bid.Lot = lot;
-            bid.User = user;
+            var bid = new Bid
+            {
+                Id = Guid.NewGuid(),
+                Amount = amount,
+                Time = DateTime.UtcNow,
+                UserId = user.Id,
+                LotId = lot.Id,
+                Lot = lot,
+                User = user
+            };
 
             if (lot.Bids.Count != 0)
             {
@@ -77,39 +84,16 @@ namespace BLL.Service
             {
                 throw new InvalidOperationException("Cannot place a bid on an unconfirmed lot");
             }
-            if (lot.WinnerId.HasValue && lot.WinnerId.Value == user.Id)
-            {
-                throw new InvalidOperationException("You cannot bid on your own lot");
-            }
             if (lot.OwnerId == user.Id)
             {
                 throw new InvalidOperationException("You cannot bid on your own lot");
-            }
-            if (lot.WinnerId.HasValue && lot.WinnerId.Value != user.Id)
-            {
-                throw new InvalidOperationException("You cannot bid on a lot that already has a winner");
             }
             if (lot.StartPrice > bid.Amount)
             {
                 throw new ArgumentException("Bid amount must be greater than the starting price of the lot");
             }
 
-            lot.Bids.Add(bid);
-            user.Bids.Add(bid);
-
-            lot.WinnerId = lot.Bids.OrderByDescending(b => b.Amount).FirstOrDefault()?.UserId;
-            if (lot.WinnerId.HasValue)
-            {
-                lot.Winner = await _unitOfWork.Users.GetById(lot.WinnerId.Value);
-            }
-            else
-            {
-                lot.Winner = null;
-            }
-
             await _unitOfWork.Bids.Create(bid);
-            await _unitOfWork.Lots.Update(lot);
-            await _unitOfWork.Users.Update(user);
             await _unitOfWork.Bids.Save();
             return bid.Id;
         }

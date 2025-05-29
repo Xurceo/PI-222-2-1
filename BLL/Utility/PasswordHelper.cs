@@ -6,7 +6,6 @@
         {
             return BCrypt.Net.BCrypt.HashPassword(plainPassword);
         }
-
         public static bool VerifyPassword(string plainPassword, string hashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(plainPassword, hashedPassword);

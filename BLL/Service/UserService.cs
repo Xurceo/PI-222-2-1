@@ -38,13 +38,14 @@ namespace BLL.Service
 
         public async Task<IEnumerable<UserDTO>> GetAll()
         {
-            var users = await _unitOfWork.Users.GetAll();
+            var users = await _unitOfWork.Users.GetAll(u => u.Lots, u => u.Bids);
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
         public async Task<UserDTO?> GetById(Guid id)
         {
-            var user = await _unitOfWork.Users.GetById(id);
+            var users = await _unitOfWork.Users.GetAll(u => u.Lots, u => u.Bids);
+            var user = users.FirstOrDefault(u => u.Id == id);
             return user != null ? _mapper.Map<UserDTO>(user) : null;
         }
 
@@ -73,6 +74,23 @@ namespace BLL.Service
             {
                 throw new Exception("User not found");
             }
+        }
+
+        public async Task<UserDTO> Authenticate(LoginDTO dto)
+        {
+            // Шукаємо користувача по username
+            var users = await _unitOfWork.Users.GetAll();
+            var user = users.FirstOrDefault(u => u.Username == dto.Username);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            // Перевіряємо пароль
+            if (!PasswordHelper.VerifyPassword(dto.Password, user.PasswordHash))
+                throw new Exception("Invalid password");
+
+            // Мапимо і повертаємо UserDTO (без пароля)
+            return _mapper.Map<UserDTO>(user);
         }
     }
 }

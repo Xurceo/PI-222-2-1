@@ -16,14 +16,13 @@ namespace BLL.MappingProfiles
 
             // Bid <-> BidDTO
             CreateMap<Bid, BidDTO>()
-                .ForMember(dest => dest.Lot, opt => opt.Ignore())   // уникаємо циклу
-                .ForMember(dest => dest.User, opt => opt.Ignore()); // уникаємо циклу
+                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.Lot, opt => opt.MapFrom(src => src.Lot));
             CreateMap<BidDTO, Bid>();
 
 
             // Lot <-> LotDTO
-            CreateMap<Lot, LotDTO>()
-                .ForMember(dest => dest.Category, opt => opt.Ignore());
+            CreateMap<Lot, LotDTO>();
             CreateMap<LotDTO, Lot>();
             CreateMap<CreateLotDTO, Lot>();
 

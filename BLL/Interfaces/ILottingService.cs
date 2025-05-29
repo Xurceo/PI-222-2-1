@@ -11,5 +11,6 @@ namespace BLL.Interfaces
         Task<Guid> AddLot(CreateLotDTO lot);
         Task UpdateLot(LotDTO lot);
         Task DeleteLot(Guid id);
+        Task ConfirmLot(Guid lotId);
     }
 }

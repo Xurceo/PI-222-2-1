@@ -4,6 +4,7 @@ using BLL.DTOs;
 using BLL.CreateDTOs;
 using DAL.Models;
 using DAL.UoW;
+using BLL.Exceptions;
 
 namespace BLL.Service
 {
@@ -35,6 +36,18 @@ namespace BLL.Service
             await _unitOfWork.Lots.Save();
 
             return lot.Id;
+        }
+
+        public async Task ConfirmLot(Guid lotId)
+        {
+            var lot = await _unitOfWork.Lots.GetById(lotId);
+            if (lot == null)
+            {
+                throw new NotFoundException(lot);
+            }
+            lot.IsConfirmed = true;
+            await _unitOfWork.Lots.Update(lot);
+            await _unitOfWork.Lots.Save();
         }
 
         public async Task DeleteLot(Guid id)

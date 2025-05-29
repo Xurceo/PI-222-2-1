@@ -11,5 +11,6 @@ namespace BLL.Interfaces
         Task UpdateUser(UserDTO dto);
         Task DeleteUser(Guid id);
         Task UpdateUserPassword(Guid id, string newPassword);
+        Task<UserDTO> Authenticate(LoginDTO dto);
     }
 }
