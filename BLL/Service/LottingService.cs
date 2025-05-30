@@ -28,12 +28,12 @@ namespace BLL.Service
             var owner = await _unitOfWork.Users.GetById(dto.OwnerId.Value);
             if (owner == null)
             {
-                throw new ArgumentException($"User with id {dto.OwnerId} not found");
+                throw new NotFoundException(owner);
             }
             var category = await _unitOfWork.Categories.GetById(dto.CategoryId);
             if (category == null)
             {
-                throw new ArgumentException($"Category with id {dto.CategoryId} not found");
+                throw new NotFoundException(category);
             }
 
             await _unitOfWork.Lots.Create(lot);
@@ -84,12 +84,36 @@ namespace BLL.Service
             var lot = await _unitOfWork.Lots.GetById(dto.Id);
             if (lot == null)
             {
-                throw new ArgumentException($"Lot with id {dto.Id} not found");
+                throw new NotFoundException(lot);
             }
 
             _mapper.Map(dto, lot);
             await _unitOfWork.Lots.Update(lot);
             await _unitOfWork.Lots.Save();
+        }
+
+        public async Task<LotDTO> EndLot(Guid lotId)
+        {
+            var lot = await _unitOfWork.Lots.GetById(lotId);
+            if (lot == null)
+            {
+                throw new NotFoundException(lot);
+            }
+            if (lot.IsEnded)
+            {
+                throw new InvalidOperationException("Lot is already ended.");
+            }
+            var lastBid = lot.Bids.OrderByDescending(b => b.Time).FirstOrDefault();
+            if (lastBid == null)
+            {
+                throw new InvalidOperationException("No bids found for the lot.");
+            }
+            lot.WinnerId = lastBid.UserId;
+            lot.Winner = lastBid.User;
+            lot.IsEnded = true;
+            await _unitOfWork.Lots.Update(lot);
+            await _unitOfWork.Lots.Save();
+            return _mapper.Map<LotDTO>(lot);
         }
     }
 }

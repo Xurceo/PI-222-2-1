@@ -8,6 +8,8 @@ namespace BLL.CreateDTOs
         public string Description { get; set; } = string.Empty;
         public decimal StartPrice { get; set; }
         public Guid CategoryId { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
 
         [JsonIgnore]
         public Guid? OwnerId { get; set; }

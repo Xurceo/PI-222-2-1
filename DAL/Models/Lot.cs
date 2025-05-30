@@ -16,6 +16,10 @@ namespace DAL.Models
 
         public bool IsConfirmed { get; set; } = false;
 
+        public bool IsEnded { get; set; } = false;
+        public DateTime? EndTime { get; set; }
+        public DateTime? StartTime { get; set; }
+
         [ForeignKey("CategoryId")]
         public Guid CategoryId { get; set; }
         public required Category Category { get; set; }

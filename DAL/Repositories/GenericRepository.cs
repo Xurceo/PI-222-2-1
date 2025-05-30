@@ -43,6 +43,25 @@ namespace DAL.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<IEnumerable<TModel>> GetAll()
+        {
+            IQueryable<TModel> query = _dbSet;
+
+            var navigationProperties = _context.Model.FindEntityType(typeof(TModel))?
+                .GetNavigations()
+                .Select(n => n.Name);
+
+            if (navigationProperties != null)
+            {
+                foreach (var navProperty in navigationProperties)
+                {
+                    query = query.Include(navProperty);
+                }
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task Create(TModel model)
         {
             await _dbSet.AddAsync(model);

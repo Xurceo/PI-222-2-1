@@ -21,6 +21,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBiddingService, BiddingService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILottingService, LottingService>();
+builder.Services.AddHostedService<LotAutoService>();
 
 
 builder.Services.AddControllers()

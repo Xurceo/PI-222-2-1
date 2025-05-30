@@ -6,6 +6,7 @@ namespace DAL.Repositories
     {
         Task<TModel?> GetById(Guid id);
         Task<IEnumerable<TModel>> GetAll(params Expression<Func<TModel, object>>[] includeProperties);
+        Task<IEnumerable<TModel>> GetAll();
         Task Create(TModel model);
         Task Update(TModel model);
         void Delete(Guid id);

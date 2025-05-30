@@ -10,7 +10,11 @@ namespace BLL.DTOs
         public string Description { get; set; } = string.Empty;
         public decimal StartPrice { get; set; }
         public bool IsConfirmed { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public bool IsEnded { get; set; }
         public required UserDTO Owner { get; set; }
+        public UserDTO? Winner { get; set; }
         public required CategoryDTO Category { get; set; }
         public ICollection<BidDTO> Bids { get; set; } = [];
     }
