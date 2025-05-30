@@ -3,7 +3,7 @@ import type {ILot} from "../types/Lot.ts";
 
 const api = import.meta.env.VITE_API_URL
 
-export async function PostLot(category: ILot): Promise<void> {
+export async function addLot(category: ILot): Promise<void> {
     try{
         await axios.post(`${api}/lots`, category);
     } catch (error) {

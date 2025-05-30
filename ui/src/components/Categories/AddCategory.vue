@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import type { ICategory } from "../../types/Category.ts";
-import {fetchCategories, AddCategory} from "../../api/category_api.ts";
+import {fetchCategories, addCategory} from "../../api/category_api.ts";
 
 const name = ref<string>('');
 const parentId = ref<number | null>(null);
@@ -37,7 +37,7 @@ const submit = async () => {
       return;
     }
 
-    await AddCategory({
+    await addCategory({
       name: name.value,
       parentId: parentId.value,
     } as ICategory);

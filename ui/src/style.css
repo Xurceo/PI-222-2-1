@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import 'primeicons/primeicons.css';
+@import "primeicons/primeicons.css";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -42,12 +42,8 @@ h1 {
   line-height: 1.1;
 }
 
-button:hover {
-  border-color: #4a5565;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button {
+  @apply border-2 rounded-lg border-gray-600 h-12 text-xl text-black m-2 cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300;
 }
 
 .select {

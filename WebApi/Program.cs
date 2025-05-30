@@ -41,7 +41,7 @@ builder.Services.AddSwaggerGen(options =>
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
-        Scheme = "Bearer" // ÂÀÆËÈÂÎ: ç âåëèêî¿ ë³òåðè!
+        Scheme = "Bearer"
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -84,8 +84,9 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:5173") // Vue dev server
+                .WithOrigins("https://localhost:5173") // Vue dev server
                 .AllowAnyHeader()
+                .AllowCredentials() 
                 .AllowAnyMethod();
         });
 });
@@ -101,6 +102,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors(MyAllowSpecificOrigins);
+
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["jwt"];
+    if (!string.IsNullOrEmpty(token))
+    {
+        context.Request.Headers["Authorization"] = $"Bearer {token}";
+    }
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 

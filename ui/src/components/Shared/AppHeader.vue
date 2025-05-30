@@ -1,15 +1,58 @@
 <template>
-  <header class=" text-start p-2 shadow-md bg-neutral-200">
-    <router-link class="text-4xl text-shadow-md text-black border-b-neutral-200 cursor-pointer" :to="{ name: 'Home' }">Home</router-link>
+  <header
+    class="flex items-center justify-between p-4 mb-4 shadow-md bg-neutral-200"
+  >
+    <!-- Left: Home -->
+    <router-link
+      class="text-4xl font-bold text-black hover:text-neutral-600 transition duration-200"
+      :to="{ name: 'Home' }"
+    >
+      Auction
+    </router-link>
 
-    <div class="end-0 text-shadow-md text-2xl">
-      <router-link class="nav-item m-10 cursor-pointer" :to="{ name: 'Lots' }">Lots</router-link>
-      <router-link class="nav-item m-10 cursor-pointer" :to="{ name: 'Categories' }">Categories</router-link>
-      <router-link class="nav-item m-10 cursor-pointer" :to="{ name: 'Users' }">Users</router-link>
+    <!-- Center: Navigation Links -->
+    <nav class="flex gap-8 text-2xl">
+      <router-link class="nav-item cursor-pointer" :to="{ name: 'Lots' }">
+        Lots
+      </router-link>
+      <router-link class="nav-item cursor-pointer" :to="{ name: 'Categories' }">
+        Categories
+      </router-link>
+      <router-link class="nav-item cursor-pointer" :to="{ name: 'Users' }">
+        Users
+      </router-link>
+    </nav>
+
+    <!-- Right: Login -->
+    <div v-if="currentUser" class="text-2xl text-black mr-4">
+      <router-link
+        class="nav-item cursor-pointer"
+        :to="{ name: 'Profile', params: { id: currentUser.id } }"
+      >
+        Welcome, {{ currentUser.username }}
+      </router-link>
+    </div>
+    <div v-else class="text-2xl text-black mr-4">
+      <router-link class="nav-item cursor-pointer" :to="{ name: 'Login' }">
+        Login
+      </router-link>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import router from '../../router.ts'
+import { ref, onMounted } from "vue";
+import { getCurrentUser } from "../../api/user_api.ts";
+import type { IUser } from "../../types/User.ts";
+
+const currentUser = ref<IUser>();
+
+onMounted(async () => {
+  try {
+    currentUser.value = await getCurrentUser();
+    currentUser.value = currentUser.value.user;
+  } catch (error) {
+    console.error("Failed to fetch current user:", error);
+  }
+});
 </script>

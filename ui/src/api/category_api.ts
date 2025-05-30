@@ -3,7 +3,7 @@ import type {ICategory} from "../types/Category.ts";
 
 const api = import.meta.env.VITE_API_URL
 
-export async function AddCategory(category: ICategory): Promise<void> {
+export async function addCategory(category: ICategory): Promise<void> {
     try{
         await axios.post(`${api}/categories`, category);
     } catch (error) {
@@ -15,7 +15,7 @@ export async function AddCategory(category: ICategory): Promise<void> {
     }
 }
 
-export async function UpdateCategory(category: ICategory): Promise<void> {
+export async function updateCategory(category: ICategory): Promise<void> {
     try{
         await axios.post(`${api}/categories/update`, category);
     } catch (error) {

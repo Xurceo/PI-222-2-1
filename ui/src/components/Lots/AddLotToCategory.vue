@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import type { ICategory } from "../../types/Category.ts"
 import type { ILot } from "../../types/Lot.ts";
-import {fetchCategoryById, AddCategory, UpdateCategory} from "../../api/category_api.ts";
+import { fetchCategoryById, updateCategory } from "../../api/category_api.ts";
 import { fetchLots } from "../../api/lot_api.ts";
 
 const props = defineProps<{
@@ -48,7 +48,7 @@ const submit = async () => {
   lot.categoryId = category.value!.id;
   category.value!.lots.push(lot);
   console.log(JSON.stringify(category.value));
-  await UpdateCategory(category.value as ICategory);
+  await updateCategory(category.value as ICategory);
   name.value = ''; // Clear input after submission
 };
 
