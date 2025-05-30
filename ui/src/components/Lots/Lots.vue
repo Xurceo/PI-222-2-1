@@ -1,8 +1,8 @@
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
-import { flattenCategories } from '../../utils/flatten.ts'
-import axios from 'axios';
-import type { ICategory } from "../../types/Category.ts"
+import { defineComponent, ref, onMounted } from "vue";
+import { getLots } from "../../api/lot_api.ts";
+import axios from "axios";
+import type { ICategory } from "../../types/Category.ts";
 import type { ILot } from "../../types/Lot.ts";
 
 const api = import.meta.env.VITE_API_URL;
@@ -12,14 +12,14 @@ export default defineComponent({
     const lots = ref<ILot[]>([]);
 
     onMounted(async () => {
-      try{
-        const res = await axios.get<ILot[]>(`${api}/lots`);
+      try {
+        const res = await getLots();
         lots.value = res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error('Axios error:', error.response?.data || error.message);
+          console.error("Axios error:", error.response?.data || error.message);
         } else {
-          console.error('Unexpected error:', error);
+          console.error("Unexpected error:", error);
         }
       }
       console.log(lots.value);
@@ -28,7 +28,6 @@ export default defineComponent({
     return { lots };
   },
 });
-
 </script>
 
 <template>

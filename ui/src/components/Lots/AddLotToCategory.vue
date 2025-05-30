@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import type { ICategory } from "../../types/Category.ts"
+import { ref, computed, onMounted } from "vue";
+import type { ICategory } from "../../types/Category.ts";
 import type { ILot } from "../../types/Lot.ts";
-import { fetchCategoryById, updateCategory } from "../../api/category_api.ts";
-import { fetchLots } from "../../api/lot_api.ts";
+import { getCategoryById, updateCategory } from "../../api/category_api.ts";
+import { getLots } from "../../api/lot_api.ts";
 
 const props = defineProps<{
-  id: string
-}>()
+  id: string;
+}>();
 
-const name = ref<string>('');
+const name = ref<string>("");
 const lots = ref<ILot[]>([]);
 const category = ref<ICategory>();
 const showSuggestions = ref(false);
-const ignoreBlur = ref(false)
+const ignoreBlur = ref(false);
 
 // Filter lots based on input
 const filteredLots = computed(() => {
   if (!name.value) return [];
-  return lots.value.filter(lot =>
-      lot.title.toLowerCase().includes(name.value.toLowerCase())
+  return lots.value.filter((lot) =>
+    lot.title.toLowerCase().includes(name.value.toLowerCase())
   );
 });
 
 onMounted(async () => {
-  category.value = await fetchCategoryById(props.id);
-  lots.value = await fetchLots();
+  category.value = await getCategoryById(props.id);
+  lots.value = await getLots();
 });
 
 const selectLot = (lotTitle: string) => {
@@ -35,13 +35,13 @@ const selectLot = (lotTitle: string) => {
 
 const submit = async () => {
   if (!name.value.trim()) {
-    alert('Name is required');
+    alert("Name is required");
     return;
   }
 
-  const lot = lots.value.find(lot => lot.title === name.value);
+  const lot = lots.value.find((lot) => lot.title === name.value);
   if (!lot) {
-    alert('Lot not found');
+    alert("Lot not found");
     return;
   }
 
@@ -49,25 +49,25 @@ const submit = async () => {
   category.value!.lots.push(lot);
   console.log(JSON.stringify(category.value));
   await updateCategory(category.value as ICategory);
-  name.value = ''; // Clear input after submission
+  name.value = ""; // Clear input after submission
 };
 
 const handleInputFocus = () => {
-  showSuggestions.value = true
-}
+  showSuggestions.value = true;
+};
 
 const handleInputBlur = () => {
   if (!ignoreBlur.value) {
-    showSuggestions.value = false
+    showSuggestions.value = false;
   }
-}
+};
 
 const handleMouseDown = () => {
-  ignoreBlur.value = true
+  ignoreBlur.value = true;
   setTimeout(() => {
-    ignoreBlur.value = false
-  }, 100)
-}
+    ignoreBlur.value = false;
+  }, 100);
+};
 </script>
 
 <template>
@@ -76,25 +76,25 @@ const handleMouseDown = () => {
     <div class="flex justify-center m-10">
       <div class="relative">
         <input
-            class="bg-white hover:bg-neutral-200 duration-300 text-black h-12 w-96 p-2 m-1 border-gray-600 border-2 rounded-lg"
-            v-model="name"
-            type="text"
-            placeholder="Enter Lot Name"
-            @focus="handleInputFocus"
-            @blur="handleInputBlur"
-            @input="showSuggestions = true"
+          class="bg-white hover:bg-neutral-200 duration-300 text-black h-12 w-96 p-2 m-1 border-gray-600 border-2 rounded-lg"
+          v-model="name"
+          type="text"
+          placeholder="Enter Lot Name"
+          @focus="handleInputFocus"
+          @blur="handleInputBlur"
+          @input="showSuggestions = true"
         />
 
         <ul
-            v-if="showSuggestions && filteredLots.length"
-            class="absolute z-10 mt-1 w-fit bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto"
-            @mousedown="handleMouseDown"
+          v-if="showSuggestions && filteredLots.length"
+          class="absolute z-10 mt-1 w-fit bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto"
+          @mousedown="handleMouseDown"
         >
           <li
-              v-for="lot in filteredLots"
-              :key="lot.id"
-              class="p-2 hover:bg-gray-100 text-black cursor-pointer"
-              @mousedown="selectLot(lot.title)"
+            v-for="lot in filteredLots"
+            :key="lot.id"
+            class="p-2 hover:bg-gray-100 text-black cursor-pointer"
+            @mousedown="selectLot(lot.title)"
           >
             {{ lot.title }}
           </li>
@@ -102,8 +102,8 @@ const handleMouseDown = () => {
       </div>
 
       <button
-          class="border-2 rounded-lg border-gray-600 h-12 w-48 text-xl text-black m-2 cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300"
-          @click="submit"
+        class="border-2 rounded-lg border-gray-600 h-12 w-48 text-xl text-black m-2 cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300"
+        @click="submit"
       >
         Add Lot
       </button>

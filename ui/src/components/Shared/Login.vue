@@ -1,26 +1,27 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { login } from '../../api/user_api.ts'
+import { login } from "../../api/user_api.ts";
 import router from "../../router.ts";
 
-const username = ref('')
-const password = ref('')
-const error = ref<string | null>(null)
-const isLoading = ref(false)
+const username = ref("");
+const password = ref("");
+const error = ref<string | null>(null);
+const isLoading = ref(false);
 
 const handleLogin = async () => {
-  error.value = null
-  isLoading.value = true
+  error.value = null;
+  isLoading.value = true;
 
   try {
-    await login(username.value, password.value)
-    router.back()
+    await login(username.value, password.value);
+    router.back();
+    window.location.reload();
   } catch (err: any) {
-    error.value = err.response?.data?.message || 'Login failed'
+    error.value = err.response?.data?.message || "Login failed";
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 </script>
 
 <template>
@@ -32,7 +33,9 @@ const handleLogin = async () => {
 
     <!-- Username Field -->
     <div class="mb-4">
-      <label for="username" class="block text-sm font-medium mb-1">Username</label>
+      <label for="username" class="block text-sm font-medium mb-1"
+        >Username</label
+      >
       <input
         id="username"
         v-model="username"
@@ -45,7 +48,9 @@ const handleLogin = async () => {
 
     <!-- Password Field -->
     <div class="mb-6">
-      <label for="password" class="block text-sm font-medium mb-1">Password</label>
+      <label for="password" class="block text-sm font-medium mb-1"
+        >Password</label
+      >
       <input
         id="password"
         v-model="password"
@@ -57,12 +62,8 @@ const handleLogin = async () => {
     </div>
 
     <!-- Submit Button -->
-    <button
-      type="submit"
-      :disabled="isLoading"
-      class="w-full"
-    >
-      {{ isLoading ? 'Logging in...' : 'Login' }}
+    <button type="submit" :disabled="isLoading" class="w-full">
+      {{ isLoading ? "Logging in..." : "Login" }}
     </button>
 
     <!-- Error Message -->

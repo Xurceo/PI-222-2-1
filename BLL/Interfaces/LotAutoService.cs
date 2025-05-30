@@ -1,4 +1,5 @@
 ﻿using BLL.Interfaces;
+using DAL.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -22,11 +23,19 @@ public class LotAutoService : BackgroundService
                 var lots = await lottingService.GetAll();
 
                 var now = DateTime.UtcNow;
-                foreach (var lot in lots.Where(l => !l.IsEnded && l.EndTime <= now))
+                foreach (var lot in lots.Where(l => !(((int)l.Status) < 3) && l.EndTime <= now))
                 {
                     try
                     {
-                        await lottingService.EndLot(lot.Id);
+                        // Закінчуємо лот, якщо він не в статусі "Завершено" або "Скасовано"
+                        if (lot.Bids.Count > 0)
+                        {
+                            await lottingService.ChangeLotStatus(lot.Id, LotStatus.Sold);
+                        }
+                        else
+                        {
+                            await lottingService.ChangeLotStatus(lot.Id, LotStatus.Expired);
+                        }
                     }
                     catch
                     {

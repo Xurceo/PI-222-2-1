@@ -50,6 +50,13 @@ namespace WebApi.Controllers
             }
         }
 
+        [HttpPost("logout")]
+        public ActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt");
+            return Ok("Logged out successfully.");
+        }
+
         [HttpGet("me")]
         public async Task<ActionResult<UserDTO>> GetCurrentUser()
         {

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using BLL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using DAL.Enums;
+using BLL.ShortDTOs;
 
 namespace WebApi.Controllers
 {
@@ -19,9 +21,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetAll()
         {
-            var lots = await _lottingService.GetAll();
+            var lots = await _lottingService.GetAllShort();
             return Ok(lots);
         }
 
@@ -97,7 +99,7 @@ namespace WebApi.Controllers
         {
             try
             {
-                await _lottingService.ConfirmLot(lotId);
+                await _lottingService.ChangeLotStatus(lotId, LotStatus.Confirmed);
             }
             catch (NotFoundException ex)
             {

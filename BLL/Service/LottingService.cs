@@ -5,6 +5,8 @@ using BLL.CreateDTOs;
 using DAL.Models;
 using DAL.UoW;
 using BLL.Exceptions;
+using DAL.Enums;
+using BLL.ShortDTOs;
 
 namespace BLL.Service
 {
@@ -42,14 +44,14 @@ namespace BLL.Service
             return lot.Id;
         }
 
-        public async Task ConfirmLot(Guid lotId)
+        public async Task ChangeLotStatus(Guid lotId, LotStatus status)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);
             if (lot == null)
             {
                 throw new NotFoundException(lot);
             }
-            lot.IsConfirmed = true;
+            lot.Status = status;
             await _unitOfWork.Lots.Update(lot);
             await _unitOfWork.Lots.Save();
         }
@@ -62,8 +64,13 @@ namespace BLL.Service
 
         public async Task<IEnumerable<LotDTO>> GetAll()
         {
-            var lots = await _unitOfWork.Lots.GetAll();
+            var lots = await _unitOfWork.Lots.GetAll(l => l.Category, l => l.Owner, l => l.Bids);
             return _mapper.Map<IEnumerable<LotDTO>>(lots);
+        }
+        public async Task<IEnumerable<LotShortDTO>> GetAllShort()
+        {
+            var lots = await _unitOfWork.Lots.GetAll();
+            return _mapper.Map<IEnumerable<LotShortDTO>>(lots);
         }
 
         public async Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId)
@@ -90,30 +97,6 @@ namespace BLL.Service
             _mapper.Map(dto, lot);
             await _unitOfWork.Lots.Update(lot);
             await _unitOfWork.Lots.Save();
-        }
-
-        public async Task<LotDTO> EndLot(Guid lotId)
-        {
-            var lot = await _unitOfWork.Lots.GetById(lotId);
-            if (lot == null)
-            {
-                throw new NotFoundException(lot);
-            }
-            if (lot.IsEnded)
-            {
-                throw new InvalidOperationException("Lot is already ended.");
-            }
-            var lastBid = lot.Bids.OrderByDescending(b => b.Time).FirstOrDefault();
-            if (lastBid == null)
-            {
-                throw new InvalidOperationException("No bids found for the lot.");
-            }
-            lot.WinnerId = lastBid.UserId;
-            lot.Winner = lastBid.User;
-            lot.IsEnded = true;
-            await _unitOfWork.Lots.Update(lot);
-            await _unitOfWork.Lots.Save();
-            return _mapper.Map<LotDTO>(lot);
         }
     }
 }

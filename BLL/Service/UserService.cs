@@ -5,6 +5,7 @@ using BLL.Utility;
 using DAL.Models;
 using DAL.UoW;
 using BLL.CreateDTOs;
+using BLL.ShortDTOs;
 
 namespace BLL.Service
 {
@@ -36,12 +37,16 @@ namespace BLL.Service
             await _unitOfWork.Users.Save();
         }
 
-        public async Task<IEnumerable<UserDTO>> GetAll()
+        public async Task<IEnumerable<UserGetDTO>> GetAll()
         {
             var users = await _unitOfWork.Users.GetAll();
-            return _mapper.Map<IEnumerable<UserDTO>>(users);
+            return _mapper.Map<IEnumerable<UserGetDTO>>(users);
         }
-
+        public async Task<IEnumerable<UserShortDTO>> GetAllShort()
+        {
+            var users = await _unitOfWork.Users.GetAll();
+            return _mapper.Map<IEnumerable<UserShortDTO>>(users);
+        }
         public async Task<UserDTO?> GetById(Guid id)
         {
             var users = await _unitOfWork.Users.GetAll();

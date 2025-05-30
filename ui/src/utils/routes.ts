@@ -7,6 +7,7 @@ import AddCategory from "../components/Categories/AddCategory.vue";
 import AddLotToCategory from "../components/Lots/AddLotToCategory.vue";
 import Login from "../components/Shared/Login.vue";
 import Profile from "../components/Users/Profile.vue";
+import Lot from "../components/Lots/Lot.vue";
 
 export const routes = [
   {
@@ -40,6 +41,12 @@ export const routes = [
     path: "/lots",
     name: "Lots",
     component: Lots,
+  },
+  {
+    path: "/lots/:id",
+    name: "Lot",
+    component: Lot,
+    props: true,
   },
   {
     path: "/users",

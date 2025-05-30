@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using DAL.Enums;
 
 namespace DAL.Models
 {
@@ -13,9 +14,7 @@ namespace DAL.Models
         public string Description { get; set; } = string.Empty;
 
         public decimal StartPrice { get; set; }
-
-        public bool IsConfirmed { get; set; } = false;
-
+        public LotStatus Status { get; set; } = LotStatus.Pending;
         public bool IsEnded { get; set; } = false;
         public DateTime? EndTime { get; set; }
         public DateTime? StartTime { get; set; }

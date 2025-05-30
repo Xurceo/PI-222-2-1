@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
-using BLL.CreateDTOs;
+using DAL.Enums;
 using BLL.DTOs;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.UoW;
+using BLL.ShortDTOs;
 
 namespace BLL.Service
 {
@@ -30,8 +31,14 @@ namespace BLL.Service
 
         public async Task<IEnumerable<BidDTO>> GetAll()
         {
-            var bids = await _unitOfWork.Bids.GetAll(b => b.User, b => b.Lot);
+            var bids = await _unitOfWork.Bids.GetAll();
             return _mapper.Map<IEnumerable<BidDTO>>(bids);
+        }
+
+        public async Task<IEnumerable<BidShortDTO>> GetAllShort()
+        {
+            var bids = await _unitOfWork.Bids.GetAll();
+            return _mapper.Map<IEnumerable<BidShortDTO>>(bids);
         }
 
         public async Task<IEnumerable<BidDTO>> GetBidsByLotId(Guid lotId)
@@ -51,11 +58,21 @@ namespace BLL.Service
         public async Task<Guid> PlaceBid(Guid userId, Guid lotId, decimal amount)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);
-            var user = await _unitOfWork.Users.GetById(userId);
+
             if (lot is null)
             {
                 throw new ArgumentException("Lot not found");
             }
+            if (lot.Status != LotStatus.Confirmed)
+            {
+                throw new InvalidOperationException("Lot is not confirmed yet or is ended");
+            }
+            if (lot.Bids.Count > 0 && lot.Bids.OrderByDescending(b => b.Amount).First().Amount > amount)
+            {
+                throw new ArgumentException("Bid amount must be greater than the last bid amount");
+            }
+
+            var user = await _unitOfWork.Users.GetById(userId);
             if (user is null)
             {
                 throw new ArgumentException("User not found");
@@ -72,18 +89,7 @@ namespace BLL.Service
                 User = user
             };
 
-            if (lot.Bids.Count != 0)
-            {
-                var lastBid = lot.Bids.OrderByDescending(b => b.Time).First();
-                if (bid.Amount <= lastBid.Amount)
-                {
-                    throw new ArgumentException("Bid amount must be greater than the last bid");
-                }
-            }
-            if (lot.IsConfirmed == false)
-            {
-                throw new InvalidOperationException("Cannot place a bid on an unconfirmed lot");
-            }
+
             if (lot.OwnerId == user.Id)
             {
                 throw new InvalidOperationException("You cannot bid on your own lot");

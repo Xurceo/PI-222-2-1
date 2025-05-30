@@ -3,6 +3,7 @@ using BLL.CreateDTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using BLL.ShortDTOs;
 
 namespace WebApi.Controllers
 {
@@ -17,9 +18,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CategoryShortDTO>>> GetAll()
         {
-            var categories = await _categoryService.GetAll();
+            var categories = await _categoryService.GetAllShort();
             return Ok(categories);
         }
 
