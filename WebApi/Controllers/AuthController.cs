@@ -1,4 +1,5 @@
-﻿using BLL.DTOs;
+﻿using BLL.CreateDTOs;
+using BLL.DTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -55,6 +56,43 @@ namespace WebApi.Controllers
         {
             Response.Cookies.Delete("jwt");
             return Ok("Logged out successfully.");
+        }
+
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDTO>> Register([FromBody] CreateUserDTO dto)
+        {
+            if (dto == null || string.IsNullOrEmpty(dto.Username) || string.IsNullOrEmpty(dto.Password))
+            {
+                return BadRequest("Username and password are required.");
+            }
+            try
+            {
+                var userId = await _userService.AddUser(dto);
+                if (userId == Guid.Empty)
+                {
+                    return BadRequest("User registration failed.");
+                }
+                var user = await _userService.GetById(userId);
+                if (user == null)
+                {
+                    return NotFound("User not found after registration.");
+                }
+                var token = _tokenProvider.GenerateToken(user);
+
+                Response.Cookies.Append("jwt", token, new CookieOptions
+                {
+                    HttpOnly = true, // cookie не доступна JS
+                    Secure = true,   // true в ПРОДІ!!!!
+                    SameSite = SameSiteMode.Strict, // или Lax, если нужно
+                    Path = "/", // доступна на всьому сайті
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
+                });
+                return Ok(new { User = user });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("me")]

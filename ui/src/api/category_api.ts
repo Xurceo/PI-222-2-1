@@ -1,11 +1,10 @@
 import axios from "axios";
-import type { ICategory } from "../types/Category.ts";
-
-const api = import.meta.env.VITE_API_URL;
+import type { ICategory } from "../models/types/Category.ts";
+import api from "../lib/axios.ts";
 
 export async function addCategory(category: ICategory): Promise<void> {
   try {
-    await axios.post(`${api}/categories`, category);
+    await api.post(`/categories`, category);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.response?.data || error.message);
@@ -17,7 +16,7 @@ export async function addCategory(category: ICategory): Promise<void> {
 
 export async function updateCategory(category: ICategory): Promise<void> {
   try {
-    await axios.post(`${api}/categories/update`, category);
+    await api.post(`/categories/update`, category);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.response?.data || error.message);
@@ -29,7 +28,7 @@ export async function updateCategory(category: ICategory): Promise<void> {
 
 export async function getCategories(): Promise<ICategory[]> {
   try {
-    const response = await axios.get(`${api}/categories`);
+    const response = await api.get(`/categories`);
     return response.data as ICategory[];
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -43,7 +42,7 @@ export async function getCategories(): Promise<ICategory[]> {
 
 export async function getCategoryById(id: string): Promise<ICategory> {
   try {
-    const response = await axios.get(`${api}/categories/${id}`);
+    const response = await api.get(`/categories/${id}`);
     console.log(response.data);
     return response.data as ICategory;
   } catch (error) {

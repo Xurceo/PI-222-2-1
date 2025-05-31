@@ -2,8 +2,8 @@
 import { defineComponent, ref, onMounted } from "vue";
 import { getLots } from "../../api/lot_api.ts";
 import axios from "axios";
-import type { ICategory } from "../../types/Category.ts";
-import type { ILot } from "../../types/Lot.ts";
+import type { ICategory } from "../../models/types/Category.ts";
+import type { ILot } from "../../models/types/Lot.ts";
 
 const api = import.meta.env.VITE_API_URL;
 
@@ -13,8 +13,7 @@ export default defineComponent({
 
     onMounted(async () => {
       try {
-        const res = await getLots();
-        lots.value = res.data;
+        lots.value = await getLots();
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.error("Axios error:", error.response?.data || error.message);
@@ -31,13 +30,17 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="text-black" v-if="lots">
+  <div class="m-10 justify-center text-black" v-if="lots">
     <h1 class="m-10">Lots</h1>
-    <ul>
-      <li v-for="lot in lots" :key="lot.id">
-        <strong>{{ lot.title }}</strong>
-        <br />
-        <span>{{ lot.description }}</span>
+    <ul class="flex flex-col items-start">
+      <li
+        class="relative before:content-['▸']"
+        v-for="lot in lots"
+        :key="lot.id"
+      >
+        <router-link :to="{ name: 'Lot', params: { id: lot.id } }">
+          {{ lot.title }}
+        </router-link>
       </li>
     </ul>
   </div>

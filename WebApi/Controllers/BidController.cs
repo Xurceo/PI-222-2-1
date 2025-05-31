@@ -1,4 +1,5 @@
-﻿using BLL.DTOs;
+﻿using BLL.CreateDTOs;
+using BLL.DTOs;
 using BLL.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "MANAGER,USER,ADMIN")]
         [HttpPost]
-        public async Task<ActionResult<Guid>> PlaceBid(Guid lotId, decimal amount)
+        public async Task<ActionResult<Guid>> PlaceBid([FromBody] PlaceBidDTO dto)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Guid userGuid;
@@ -59,7 +60,7 @@ namespace WebApi.Controllers
                 return Unauthorized(userId);
             }
 
-            var id = await _biddingService.PlaceBid(userGuid, lotId, amount);
+            var id = await _biddingService.PlaceBid(userGuid, dto.LotId, dto.Amount);
             return CreatedAtAction(nameof(PlaceBid), new { id });
         }
     }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import type { ICategory } from "../../types/Category.ts";
-import type { ILot } from "../../types/Lot.ts";
+import type { ICategory } from "../../models/types/Category.ts";
+import type { ILot } from "../../models/types/Lot.ts";
 import { getCategoryById, updateCategory } from "../../api/category_api.ts";
 import { getLots } from "../../api/lot_api.ts";
 
@@ -45,7 +45,7 @@ const submit = async () => {
     return;
   }
 
-  lot.categoryId = category.value!.id;
+  lot.category.id = category.value?.id || "";
   category.value!.lots.push(lot);
   console.log(JSON.stringify(category.value));
   await updateCategory(category.value as ICategory);

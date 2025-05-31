@@ -10,7 +10,7 @@
       />
       <select
         class="bg-white hover:bg-neutral-200 duration-300 text-black h-12 p-2 border-gray-600 border-2 rounded-lg select"
-        v-model="parentId"
+        v-model="parent"
       >
         <option :value="null">No parent</option>
         <option v-for="cat in categories" :key="cat.id" :value="cat.id">
@@ -29,11 +29,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import type { ICategory } from "../../types/Category.ts";
+import type { ICategory } from "../../models/types/Category.ts";
 import { getCategories, addCategory } from "../../api/category_api.ts";
 
 const name = ref<string>("");
-const parentId = ref<number | null>(null);
+const parent = ref<ICategory | null>(null);
 const categories = ref<ICategory[]>([]);
 
 onMounted(async () => {
@@ -49,9 +49,9 @@ const submit = async () => {
 
   await addCategory({
     name: name.value,
-    parentId: parentId.value,
+    parent: parent.value,
   } as ICategory);
 
-  return { name, parentId, categories, submit };
+  return { name, parent, categories, submit };
 };
 </script>

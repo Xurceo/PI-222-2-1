@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ILot } from "../types/Lot.ts";
+import type { ILot } from "../models/types/Lot.ts";
 
 const api = import.meta.env.VITE_API_URL;
 

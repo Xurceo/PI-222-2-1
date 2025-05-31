@@ -1,23 +1,31 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { login } from "../../api/user_api.ts";
+import { registerUser } from "../../api/user_api.ts";
 import router from "../../router.ts";
+import type { IRegisterUser } from "../../models/types/RegisterUser.ts";
 
 const username = ref("");
 const password = ref("");
 const error = ref<string | null>(null);
 const isLoading = ref(false);
 
-const handleLogin = async () => {
+const handleRegister = async () => {
   error.value = null;
   isLoading.value = true;
 
   try {
-    const user = await login(username.value, password.value);
-    router.push({ name: "Profile", params: { id: user.id } });
+    if (!username.value || !password.value) {
+      throw new Error("Username and password are required");
+    }
+    const userData: IRegisterUser = {
+      username: username.value,
+      password: password.value,
+    };
+    const user = await registerUser(userData);
     window.location.reload();
+    router.push({ name: "Profile", params: { id: user.id } });
   } catch (err: any) {
-    error.value = err.response?.data?.message || "Login failed";
+    error.value = err.response?.data?.message || "Register failed";
   } finally {
     isLoading.value = false;
   }
@@ -26,10 +34,10 @@ const handleLogin = async () => {
 
 <template>
   <form
-    @submit.prevent="handleLogin"
+    @submit.prevent="handleRegister"
     class="flex flex-col login-form mx-auto max-w-md w-full p-6 bg-white shadow-2xl shadow-teal-900 rounded-xl text-black"
   >
-    <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-center">Register</h2>
 
     <!-- Username Field -->
     <div class="mb-4">
@@ -63,7 +71,7 @@ const handleLogin = async () => {
 
     <!-- Submit Button -->
     <button type="submit" :disabled="isLoading" class="w-full pt-1.5">
-      {{ isLoading ? "Logging in..." : "Login" }}
+      {{ isLoading ? "Registering ..." : "Register" }}
     </button>
 
     <!-- Error Message -->

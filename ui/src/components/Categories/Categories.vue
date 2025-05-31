@@ -1,7 +1,6 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from "vue";
-import { flattenCategories } from "../../utils/flatten.ts";
-import type { ICategory } from "../../types/Category.ts";
+import type { ICategory } from "../../models/types/Category.ts";
 import { getCategories } from "../../api/category_api.ts";
 
 export default defineComponent({

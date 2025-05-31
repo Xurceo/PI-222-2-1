@@ -52,6 +52,10 @@ namespace BLL.Service
                 throw new NotFoundException(lot);
             }
             lot.Status = status;
+            if (status == LotStatus.Sold)
+            {
+                lot.Winner = lot.Bids.MaxBy(b => b.Amount)!.User;
+            }
             await _unitOfWork.Lots.Update(lot);
             await _unitOfWork.Lots.Save();
         }

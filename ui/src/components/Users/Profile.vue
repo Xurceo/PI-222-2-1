@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { getUserById } from "../../api/user_api.ts";
+import type { IUser } from "../../models/types/User.ts";
+import router from "../../router.ts";
+import { capitalize } from "../../lib/auction.ts";
 
 const user = ref<IUser>();
 
@@ -15,7 +18,7 @@ onMounted(async () => {
       user.value = await getUserById(userId);
       return { user };
     } catch (error) {
-      route.push({ name: "NotFound" });
+      router.push({ name: "NotFound" });
     }
   }
 });
@@ -28,19 +31,18 @@ onMounted(async () => {
     <h2 class="text-2xl font-semibold mb-6 text-center">User Profile</h2>
     <div v-if="user">
       <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Role:</strong> {{ capitalize(user.role) }}</p>
       <div v-if="user.lots && user.lots.length > 0">
         <h3 class="mt-4">User's Lots</h3>
-        <ul class="flex flex-col items-start">
-          <li v-for="lot in user.lots" :key="lot.id">
-            <router-link
-              :to="{ name: 'Lot', params: { id: lot.id } }"
-              class="text-blue-600 hover:underline"
-            >
-              {{ lot.title }}
-            </router-link>
-            <br />
-            <span>{{ lot.description }}</span>
-          </li>
+        <ul class="grid grid-cols-3 gap-4 items-start w-full">
+          <router-link
+            :to="{ name: 'Lot', params: { id: lot.id } }"
+            v-for="lot in user.lots"
+            :key="lot.id"
+            class="button pt-1.5"
+          >
+            {{ lot.title }}
+          </router-link>
         </ul>
       </div>
     </div>

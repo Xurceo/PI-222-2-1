@@ -17,12 +17,7 @@
 }
 
 .nav-item {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-.nav-item:hover {
-  color: #535bf2;
+  @apply text-blue-500 hover:text-blue-900 duration-300 text-3xl font-semibold text-shadow-lg text-shadow-teal-800;
 }
 
 body {
@@ -43,7 +38,11 @@ h1 {
 }
 
 button {
-  @apply border-2 rounded-lg border-gray-600 h-12 text-xl text-black m-2 cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300;
+  @apply flex flex-col border-2 rounded-lg border-gray-600 h-12 text-xl text-black cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300;
+}
+
+.button {
+  @apply flex flex-col border-2 rounded-lg border-gray-600 h-12 text-xl text-black cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300;
 }
 
 .select {
@@ -56,6 +55,14 @@ button {
 
 .card {
   padding: 2em;
+}
+
+input {
+  @apply border-2 rounded-lg border-blue-300 h-12 text-xl text-black m-2 p-2 focus:outline-none focus:ring focus:ring-blue-500;
+}
+
+li {
+  @apply text-blue-500 hover:text-blue-900 duration-300 text-2xl;
 }
 
 #app {

@@ -8,6 +8,8 @@ import AddLotToCategory from "../components/Lots/AddLotToCategory.vue";
 import Login from "../components/Shared/Login.vue";
 import Profile from "../components/Users/Profile.vue";
 import Lot from "../components/Lots/Lot.vue";
+import PlaceBid from "../components/Bids/PlaceBid.vue";
+import Register from "../components/Shared/Register.vue";
 
 export const routes = [
   {
@@ -49,6 +51,12 @@ export const routes = [
     props: true,
   },
   {
+    path: "/lots/:lotId/place-bid",
+    name: "PlaceBid",
+    component: PlaceBid,
+    props: true,
+  },
+  {
     path: "/users",
     name: "Users",
     component: Users,
@@ -57,6 +65,11 @@ export const routes = [
     path: "/login",
     name: "Login",
     component: Login,
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: Register,
   },
   {
     path: "/profile/:id",

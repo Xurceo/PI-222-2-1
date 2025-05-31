@@ -23,11 +23,10 @@ public class LotAutoService : BackgroundService
                 var lots = await lottingService.GetAll();
 
                 var now = DateTime.UtcNow;
-                foreach (var lot in lots.Where(l => !(((int)l.Status) < 3) && l.EndTime <= now))
+                foreach (var lot in lots.Where(l => (((int)l.Status) < 3) && l.EndTime <= now))
                 {
                     try
                     {
-                        // Закінчуємо лот, якщо він не в статусі "Завершено" або "Скасовано"
                         if (lot.Bids.Count > 0)
                         {
                             await lottingService.ChangeLotStatus(lot.Id, LotStatus.Sold);
