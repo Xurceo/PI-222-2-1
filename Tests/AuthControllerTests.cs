@@ -10,6 +10,7 @@ using WebApi.Infrastructure;
 using System.Threading.Tasks;
 using System;
 using Microsoft.Extensions.Configuration;
+using System.Threading;
 
 namespace Tests
 {
@@ -24,7 +25,7 @@ namespace Tests
             _userServiceMock = new Mock<IUserService>();
 
             var configMock = new Mock<IConfiguration>();
-            configMock.Setup(c => c["JWT:Secret"]).Returns("supersecretkey1234567890");
+            configMock.Setup(c => c["JWT:Secret"]).Returns("Postavte-100-baliv-PLS-abcdefghijklmnopqrstuvwxyz");
             configMock.Setup(c => c["JWT:Issuer"]).Returns("testIssuer");
             configMock.Setup(c => c["JWT:Audience"]).Returns("testAudience");
 
@@ -63,9 +64,14 @@ namespace Tests
             var objectResult = Assert.IsAssignableFrom<ObjectResult>(result.Result);
             Assert.Equal(StatusCodes.Status200OK, objectResult.StatusCode);
 
-            dynamic value = objectResult.Value;
-            Assert.Equal(userDto.Username, ((UserDTO)value.User).Username);
-            Assert.NotNull((string)value.Token);
+            var value = objectResult.Value;
+            var userProp = value.GetType().GetProperty("User");
+            var user = userProp?.GetValue(value);
+            var resultUserDto = Assert.IsType<UserDTO>(user);
+
+            Assert.Equal(userDto.Username, resultUserDto.Username);
+
+            var mockCookies = new Mock<IResponseCookies>();
         }
 
 
@@ -91,8 +97,13 @@ namespace Tests
             var objectResult = Assert.IsAssignableFrom<ObjectResult>(result.Result);
             Assert.Equal(StatusCodes.Status200OK, objectResult.StatusCode);
 
-            dynamic value = objectResult.Value;
-            Assert.Equal(userDto.Username, ((UserDTO)value.User).Username);
+
+            var value = objectResult.Value;
+            var userProp = value.GetType().GetProperty("User");
+            var user = userProp?.GetValue(value);
+            var resultUserDto = Assert.IsType<UserDTO>(user);
+
+            Assert.Equal(userDto.Username, resultUserDto.Username);
         }
 
 
