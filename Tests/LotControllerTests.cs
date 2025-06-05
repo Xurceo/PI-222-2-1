@@ -1,15 +1,10 @@
-﻿using BLL.CreateDTOs;
-using BLL.DTOs;
-using BLL.Exceptions;
-using BLL.Interfaces;
-using BLL.ShortDTOs;
+﻿using BLL.Interfaces;
 using DAL.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
 using WebApi.Controllers;
-using Xunit;
 
 namespace Tests
 {

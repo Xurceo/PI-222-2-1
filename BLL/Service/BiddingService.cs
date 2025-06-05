@@ -4,10 +4,6 @@ using BLL.DTOs;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.UoW;
-<<<<<<< HEAD
-=======
-using BLL.ShortDTOs;
->>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
 using System.Globalization;
 
 namespace BLL.Service
@@ -39,15 +35,6 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<BidDTO>>(bids);
         }
 
-<<<<<<< HEAD
-=======
-        public async Task<IEnumerable<BidShortDTO>> GetAllShort()
-        {
-            var bids = await _unitOfWork.Bids.GetAll();
-            return _mapper.Map<IEnumerable<BidShortDTO>>(bids);
-        }
-
->>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         public async Task<Guid> PlaceBid(Guid userId, Guid lotId, decimal amount)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);

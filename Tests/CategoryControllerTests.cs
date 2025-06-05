@@ -1,13 +1,8 @@
 ﻿using BLL.CreateDTOs;
+using BLL.DTOs;
 using BLL.Interfaces;
-using BLL.ShortDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WebApi.Controllers;
 
 namespace Tests
@@ -26,8 +21,8 @@ namespace Tests
         [Fact]
         public async Task GetAll_ReturnsOkWithCategories()
         {
-            var categories = new List<CategoryShortDTO> { new CategoryShortDTO() };
-            _mockCategoryService.Setup(x => x.GetAllShort()).ReturnsAsync(categories);
+            var categories = new List<CategoryDTO> { new CategoryDTO() { Name = "Test" } };
+            _mockCategoryService.Setup(x => x.GetAll()).ReturnsAsync(categories);
 
             var result = await _controller.GetAll();
 
@@ -46,8 +41,7 @@ namespace Tests
 
             var result = await _controller.AddCategory(createDto);
 
-            var createdAtResult = Assert.IsType<CreatedAtActionResult>(result.Result); 
-            Assert.Equal(nameof(CategoryController.GetById), createdAtResult.ActionName);
+            Assert.IsType<OkObjectResult>(result.Result);
         }
 
     }

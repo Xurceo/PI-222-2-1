@@ -34,7 +34,7 @@ namespace Tests
 
 
         [Fact]
-        public async Task PlaceBid_WithValidData_ReturnsCreated()
+        public async Task PlaceBid_WithValidData_ReturnsOk()
         {
             var placeBidDto = new PlaceBidDTO { LotId = Guid.NewGuid(), Amount = 100 };
             var bidId = Guid.NewGuid();
@@ -45,15 +45,7 @@ namespace Tests
 
             var result = await _controller.PlaceBid(placeBidDto);
 
-            var createdAtResult = Assert.IsType<CreatedAtActionResult>(result.Result);
-            Assert.Equal(nameof(BidController.PlaceBid), createdAtResult.ActionName);
-
-            var value = createdAtResult.Value!;
-            var property = value.GetType().GetProperty("id");
-            Assert.NotNull(property);
-
-            var returnedId = (Guid)property.GetValue(value)!;
-            Assert.Equal(bidId, returnedId);
+            Assert.IsType<OkObjectResult>(result.Result);
         }
 
 

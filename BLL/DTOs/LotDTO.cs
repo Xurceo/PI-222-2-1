@@ -14,10 +14,6 @@ namespace BLL.DTOs
         public required Guid OwnerId { get; set; }
         public Guid? WinnerId { get; set; }
         public required Guid CategoryId { get; set; }
-<<<<<<< HEAD
         public IEnumerable<Guid> BidIds { get; set; } = [];
-=======
-        public ICollection<Guid> BidIds { get; set; } = [];
->>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
     }
 }

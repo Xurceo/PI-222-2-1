@@ -71,26 +71,11 @@ namespace BLL.Service
             var lots = await _unitOfWork.Lots.GetAll(l => l.Category, l => l.Owner, l => l.Bids);
             return _mapper.Map<IEnumerable<LotDTO>>(lots);
         }
-
-<<<<<<< HEAD
-        public async Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId)
-        {
-            var lots = await _unitOfWork.Lots.GetAll();
-            var filtered = lots.Where(l => l.CategoryId == categoryId);
-            return _mapper.Map<IEnumerable<LotDTO>>(filtered);
-        }
-
-=======
->>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         public async Task<LotDTO?> GetById(Guid id)
         {
             var lot = await _unitOfWork.Lots.GetById(id);
             return lot != null ? _mapper.Map<LotDTO>(lot) : null;
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         public async Task<IEnumerable<BidDTO>> GetLotBids(Guid lotId)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);
