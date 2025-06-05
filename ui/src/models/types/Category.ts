@@ -1,9 +1,7 @@
-import type { ILot } from "./Lot.ts";
-
 export interface ICategory {
-  id: string;
+  id: string | null;
   name: string;
-  parent: ICategory | null;
-  subcategories: ICategory[];
-  lots: ILot[];
+  parentId: string | null;
+  subcategoryIds: string[] | null;
+  lotIds: string[] | null;
 }

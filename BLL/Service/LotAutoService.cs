@@ -20,14 +20,18 @@ public class LotAutoService : BackgroundService
             using (var scope = _serviceProvider.CreateScope())
             {
                 var lottingService = scope.ServiceProvider.GetRequiredService<ILottingService>();
+                var biddingService = scope.ServiceProvider.GetRequiredService<IBiddingService>();
+
                 var lots = await lottingService.GetAll();
+                var bids = await biddingService.GetAll();
 
                 var now = DateTime.UtcNow;
                 foreach (var lot in lots.Where(l => (((int)l.Status) < 3) && l.EndTime <= now))
                 {
                     try
                     {
-                        if (lot.Bids.Count > 0)
+                        var bidsForLot = bids.Where(b => b.LotId == lot.Id).ToList();
+                        if (bidsForLot.Count > 0)
                         {
                             await lottingService.ChangeLotStatus(lot.Id, LotStatus.Sold);
                         }

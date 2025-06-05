@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { placeBid } from "../../api/bid_api";
 import { getCurrentUser } from "../../api/user_api";
-import { getLotById } from "../../api/lot_api";
+import { getLotById, getLotBids } from "../../api/lot_api";
 import type { IBid } from "../../models/types/Bid";
 import type { IUser } from "../../models/types/User";
 import type { ILot } from "../../models/types/Lot";
@@ -12,6 +12,7 @@ const bidAmount = ref<number | null>(null);
 const errorMessage = ref<string | null>(null);
 const currentUser = ref<IUser | null>(null);
 const lot = ref<ILot>();
+const lotBids = ref<IBid[]>([]);
 
 const props = defineProps<{
   lotId: string;
@@ -20,6 +21,8 @@ const props = defineProps<{
 onMounted(async () => {
   try {
     currentUser.value = await getCurrentUser();
+    lotBids.value = await getLotBids(props.lotId);
+    lot.value = await getLotById(props.lotId);
   } catch (error) {
     currentUser.value = null; // Explicitly set to null if not authed
     console.error("Failed to fetch current user:", error);
@@ -31,11 +34,6 @@ const placeBidHandler = async () => {
     errorMessage.value = "You must be logged in to place a bid.";
     return;
   }
-  try {
-    lot.value = await getLotById(props.lotId);
-  } catch (error) {
-    console.error("Failed to fetch lot:", error);
-  }
 
   if (lot.value === undefined || bidAmount.value === null) {
     errorMessage.value = "Please enter both Lot ID and Bid Amount.";
@@ -43,15 +41,15 @@ const placeBidHandler = async () => {
   }
 
   const highestBid =
-    lot.value.bids.length > 0
-      ? lot.value.bids.sort((a, b) => b.amount - a.amount)[0].amount
+    lotBids.value.length > 0
+      ? lotBids.value.sort((a, b) => b.amount - a.amount)[0].amount
       : 0;
 
   if (bidAmount.value <= 0) {
     errorMessage.value = "Bid amount must be greater than zero.";
     return;
-  } else if (lot.value!.bids.length > 0 && bidAmount.value <= highestBid) {
-    errorMessage.value = `Bid amount must be greater than the current highest bid (${highestBid}$).`;
+  } else if (lotBids.value.length > 0 && bidAmount.value <= highestBid) {
+    errorMessage.value = `Bid amount must be greater than the current highest bid (${highestBid}₴).`;
     return;
   } else if (lot.value!.status !== 2) {
     errorMessage.value = "You can only place bids on confirmed lots.";
@@ -61,10 +59,10 @@ const placeBidHandler = async () => {
   let msg = null;
 
   try {
-    msg = await placeBid(lot.value!.id, bidAmount.value);
+    msg = await placeBid(props.lotId, bidAmount.value);
     errorMessage.value = null;
     alert(msg);
-    router.push({ name: "Lot", params: { id: lot.value!.id } });
+    router.push({ name: "Lot", params: { lotId: props.lotId } });
   } catch (error) {
     errorMessage.value = msg;
   }
@@ -84,7 +82,7 @@ const placeBidHandler = async () => {
     <form @submit.prevent="placeBidHandler" class="space-y-4">
       <div>
         <label for="bidAmount" class="block text-sm font-medium text-gray-700"
-          >Bid Amount ($)</label
+          >Bid Amount (₴)</label
         >
         <input
           v-model.number="bidAmount"

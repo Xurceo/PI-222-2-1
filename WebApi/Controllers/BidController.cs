@@ -21,7 +21,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BidDTO>>> GetAll()
         {
-            var bids = await _biddingService.GetAllShort();
+            var bids = await _biddingService.GetAll();
             return Ok(bids);
         }
 
@@ -34,17 +34,6 @@ namespace WebApi.Controllers
                 return NotFound();
             }
             return Ok(bid);
-        }
-
-        [HttpGet("lot/{lotId}")]
-        public async Task<ActionResult<IEnumerable<BidDTO>>> GetBidsByLotId(Guid lotId)
-        {
-            var bids = await _biddingService.GetBidsByLotId(lotId);
-            if (bids == null || !bids.Any())
-            {
-                return NotFound();
-            }
-            return Ok(bids);
         }
 
         [Authorize(Roles = "MANAGER,USER,ADMIN")]

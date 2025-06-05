@@ -4,7 +4,6 @@ import Category from "../components/Categories/Category.vue";
 import Lots from "../components/Lots/Lots.vue";
 import Users from "../components/Users/Users.vue";
 import AddCategory from "../components/Categories/AddCategory.vue";
-import AddLotToCategory from "../components/Lots/AddLotToCategory.vue";
 import AddLot from "../components/Lots/AddLot.vue";
 import Login from "../components/Shared/Login.vue";
 import Profile from "../components/Users/Profile.vue";
@@ -24,7 +23,7 @@ export const routes = [
     component: Categories,
   },
   {
-    path: "/category/:id",
+    path: "/category/:categoryId",
     name: "Category",
     component: Category,
     props: true,
@@ -35,18 +34,12 @@ export const routes = [
     component: AddCategory,
   },
   {
-    path: "/category/:id/add-lot",
-    name: "AddLotToCategory",
-    component: AddLotToCategory,
-    props: true,
-  },
-  {
     path: "/lots",
     name: "Lots",
     component: Lots,
   },
   {
-    path: "/lots/:id",
+    path: "/lots/:lotId",
     name: "Lot",
     component: Lot,
     props: true,
@@ -73,13 +66,13 @@ export const routes = [
     component: Register,
   },
   {
-    path: "/profile/:id",
+    path: "/profile/:userId",
     name: "Profile",
     component: Profile,
     props: true,
   },
   {
-    path: "/profile/:id/create-lot",
+    path: "/profile/:userId/create-lot",
     name: "AddLot",
     component: AddLot,
     props: true,

@@ -18,9 +18,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryShortDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAll()
         {
-            var categories = await _categoryService.GetAllShort();
+            var categories = await _categoryService.GetAll();
             return Ok(categories);
         }
 
@@ -33,12 +33,26 @@ namespace WebApi.Controllers
             return Ok(category);
         }
 
+        [HttpGet("{id}/lots")]
+        public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetCategoryLots(Guid id)
+        {
+            var lots = await _categoryService.GetCategoryLots(id);
+            return Ok(lots);
+        }
+
+        [HttpGet("{id}/subcategories")]
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategorySubcategories(Guid id)
+        {
+            var subcategories = await _categoryService.GetCategorySubcategories(id);
+            return Ok(subcategories);
+        }
+
         [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddCategory([FromBody] CreateCategoryDTO dto)
         {
             var id = await _categoryService.AddCategory(dto);
-            return CreatedAtAction(nameof(GetById), new { id }, dto);
+            return Ok(id);
         }
 
 

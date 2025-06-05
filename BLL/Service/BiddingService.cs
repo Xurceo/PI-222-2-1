@@ -5,6 +5,7 @@ using BLL.Interfaces;
 using DAL.Models;
 using DAL.UoW;
 using BLL.ShortDTOs;
+using System.Globalization;
 
 namespace BLL.Service
 {
@@ -41,20 +42,6 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<BidShortDTO>>(bids);
         }
 
-        public async Task<IEnumerable<BidDTO>> GetBidsByLotId(Guid lotId)
-        {
-            var lot = await _unitOfWork.Lots.GetById(lotId);
-            if (lot is not null)
-            {
-                var bids = lot.Bids;
-                return _mapper.Map<IEnumerable<BidDTO>>(bids);
-            }
-            else
-            {
-                throw new ArgumentException("Lot not found");
-            }
-        }
-
         public async Task<Guid> PlaceBid(Guid userId, Guid lotId, decimal amount)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);
@@ -69,7 +56,7 @@ namespace BLL.Service
             }
             if (lot.Bids.Count > 0 && lot.Bids.OrderByDescending(b => b.Amount).First().Amount > amount)
             {
-                throw new ArgumentException("Bid amount must be greater than the last bid amount");
+                throw new ArgumentException($"Bid amount must be greater than the last bid amount: {lot.Bids.Max(b => b.Amount):C}");
             }
 
             var user = await _unitOfWork.Users.GetById(userId);
@@ -96,7 +83,8 @@ namespace BLL.Service
             }
             if (lot.StartPrice > bid.Amount)
             {
-                throw new ArgumentException("Bid amount must be greater than the starting price of the lot");
+                Console.WriteLine(CultureInfo.CurrentCulture);
+                throw new ArgumentException($"Bid amount must be greater than the starting price of the lot {lot.StartPrice:C}");
             }
 
             await _unitOfWork.Bids.Create(bid);

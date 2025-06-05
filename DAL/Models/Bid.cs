@@ -16,9 +16,8 @@ namespace DAL.Models
         public Guid LotId { get; set; }
         public required Lot Lot { get; set; }
 
-        public Guid UserId { get; set; }
-
         [ForeignKey("UserId")]
+        public Guid UserId { get; set; }
         public required User User { get; set; }
     }
 }

@@ -11,28 +11,28 @@ namespace BLL.MappingProfiles
         public DefaultMappingProfile()
         {
             // User <-> UserDTO
-            CreateMap<User, UserDTO>();
+            CreateMap<User, UserDTO>()
+                .ForMember(dest => dest.BidIds, opt => opt.MapFrom(src => src.Bids.Select(b => b.Id)))
+                .ForMember(dest => dest.LotIds, opt => opt.MapFrom(src => src.Lots.Select(l => l.Id)));
             CreateMap<UserDTO, User>();
             CreateMap<CreateUserDTO, User>();
-            CreateMap<User, UserShortDTO>();
-            CreateMap<User, UserGetDTO>();
 
             // Bid <-> BidDTO
             CreateMap<Bid, BidDTO>();
             CreateMap<BidDTO, Bid>();
-            CreateMap<Bid, BidShortDTO>();
 
             // Lot <-> LotDTO
-            CreateMap<Lot, LotDTO>();
+            CreateMap<Lot, LotDTO>()
+                .ForMember(dest => dest.BidIds, opt => opt.MapFrom(src => src.Bids.Select(b => b.Id)));
             CreateMap<LotDTO, Lot>();
             CreateMap<CreateLotDTO, Lot>();
-            CreateMap<Lot, LotShortDTO>();
 
             // Category <-> CategoryDTO
-            CreateMap<Category, CategoryDTO>();
+            CreateMap<Category, CategoryDTO>()
+                .ForMember(dest => dest.LotIds, opt => opt.MapFrom(src => src.Lots.Select(l => l.Id)))
+                .ForMember(dest => dest.SubcategoryIds, opt => opt.MapFrom(src => src.Subcategories.Select(sc => sc.Id)));
             CreateMap<CategoryDTO, Category>();
             CreateMap<CreateCategoryDTO, Category>();
-            CreateMap<Category, CategoryShortDTO>();
         }
     }
 }
