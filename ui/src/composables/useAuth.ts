@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import router from "../router";
 import type { IUser } from "../models/types/User";
 import { apiLogin, apiLogout, getCurrentUser } from "../api/user_api";
 
@@ -7,8 +7,6 @@ const currentUser = ref<IUser | null>(null);
 const loading = ref<boolean>(true);
 
 export function useAuth() {
-  const router = useRouter();
-
   // Load user from localStorage on startup
   const loadUser = async () => {
     try {

@@ -1,10 +1,7 @@
-import type { IBid } from "./Bid";
-import type { ILot } from "./Lot";
-
 export interface IUser {
-  id: string;
+  id: string | null;
   username: string;
   role: string;
-  lots: ILot[];
-  bids: IBid[];
+  lotIds: string[] | null;
+  bidIds: string[] | null;
 }

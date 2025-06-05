@@ -8,8 +8,9 @@ namespace BLL.Interfaces
     {
         Task<Guid> AddUser(CreateUserDTO dto);
         Task<UserDTO?> GetById(Guid id);
+        Task<IEnumerable<BidDTO>> GetUserBids(Guid userId);
+        Task<IEnumerable<LotDTO>> GetUserLots(Guid userId);
         Task<IEnumerable<UserDTO>> GetAll();
-        Task<IEnumerable<UserShortDTO>> GetAllShort();
         Task UpdateUser(UserDTO dto);
         Task DeleteUser(Guid id);
         Task UpdateUserPassword(Guid id, string newPassword);

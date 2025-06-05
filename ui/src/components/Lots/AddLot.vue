@@ -4,8 +4,8 @@ import type { ICategory } from "../../models/types/Category.ts";
 import { getCategories, getCategoryById } from "../../api/category_api.ts";
 import { addLot } from "../../api/lot_api.ts";
 import { useAuth } from "../../composables/useAuth.ts";
-import type { ICreateLot } from "../../models/types/CreateLot.ts";
 import router from "../../router.ts";
+import type { ILot } from "../../models/types/Lot.ts";
 
 const { currentUser } = useAuth();
 
@@ -17,7 +17,7 @@ const categoryId = ref<string>("");
 const categories = ref<ICategory[]>([]);
 
 const props = defineProps<{
-  id: string;
+  userId: string;
 }>();
 
 onMounted(async () => {
@@ -25,11 +25,7 @@ onMounted(async () => {
     alert("You must be logged in to create a lot.");
     return;
   }
-  try {
-    categories.value = await getCategories();
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-  }
+  categories.value = await getCategories();
 });
 
 const createLot = async () => {
@@ -38,22 +34,18 @@ const createLot = async () => {
     return;
   }
 
-  const apiCategory = await getCategoryById(categoryId.value);
-
-  const newLot: ICreateLot = {
+  const newLot = {
     title: title.value,
     endTime: new Date(endTime.value),
     startPrice: startPrice.value,
     description: description.value,
-    categoryId: apiCategory.id,
-  };
-
+    categoryId: categoryId.value,
+  } as ILot;
   try {
     await addLot(newLot);
-    alert("Lot created successfully!");
     router.push({ name: "Lots" });
   } catch (error) {
-    console.error("Error creating lot:", error);
+    return;
   }
 };
 </script>
@@ -118,7 +110,7 @@ const createLot = async () => {
           v-model="categoryId"
         >
           <option value="" disabled selected>Select Category</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+          <option v-for="cat in categories" :key="cat.id!" :value="cat.id">
             {{ cat.name }}
           </option>
         </select>

@@ -36,17 +36,6 @@ namespace WebApi.Controllers
             return Ok(bid);
         }
 
-        [HttpGet("lot/{lotId}")]
-        public async Task<ActionResult<IEnumerable<BidDTO>>> GetBidsByLotId(Guid lotId)
-        {
-            var bids = await _biddingService.GetBidsByLotId(lotId);
-            if (bids == null || !bids.Any())
-            {
-                return NotFound();
-            }
-            return Ok(bids);
-        }
-
         [Authorize(Roles = "MANAGER,USER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> PlaceBid([FromBody] PlaceBidDTO dto)

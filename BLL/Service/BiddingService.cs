@@ -41,20 +41,6 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<BidShortDTO>>(bids);
         }
 
-        public async Task<IEnumerable<BidDTO>> GetBidsByLotId(Guid lotId)
-        {
-            var lot = await _unitOfWork.Lots.GetById(lotId);
-            if (lot is not null)
-            {
-                var bids = lot.Bids;
-                return _mapper.Map<IEnumerable<BidDTO>>(bids);
-            }
-            else
-            {
-                throw new ArgumentException("Lot not found");
-            }
-        }
-
         public async Task<Guid> PlaceBid(Guid userId, Guid lotId, decimal amount)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);

@@ -44,15 +44,28 @@ namespace BLL.Service
             var categories = await _unitOfWork.Categories.GetAll(c => c.Lots, c => c.Subcategories);
             return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
         }
-        public async Task<IEnumerable<CategoryShortDTO>> GetAllShort()
-        {
-            var categories = await _unitOfWork.Categories.GetAll();
-            return _mapper.Map<IEnumerable<CategoryShortDTO>>(categories);
-        }
         public async Task<CategoryDTO?> GetById(Guid id)
         {
             var category = await _unitOfWork.Categories.GetById(id);
             return category != null ? _mapper.Map<CategoryDTO>(category) : null;
+        }
+        public async Task<IEnumerable<LotDTO>> GetCategoryLots(Guid categoryId)
+        {
+            var category = await _unitOfWork.Categories.GetById(categoryId);
+            if (category == null)
+            {
+                throw new ArgumentException("Category not found", nameof(categoryId));
+            }
+            return _mapper.Map<IEnumerable<LotDTO>>(category.Lots);
+        }
+        public async Task<IEnumerable<CategoryDTO>> GetCategorySubcategories(Guid parentId)
+        {
+            var parentCategory = await _unitOfWork.Categories.GetById(parentId);
+            if (parentCategory == null)
+            {
+                throw new ArgumentException("Parent category not found", nameof(parentId));
+            }
+            return _mapper.Map<IEnumerable<CategoryDTO>>(parentCategory.Subcategories);
         }
         public async Task UpdateCategory(CategoryDTO dto)
         {

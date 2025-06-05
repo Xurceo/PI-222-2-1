@@ -79,17 +79,24 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<LotShortDTO>>(lots);
         }
 
-        public async Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId)
-        {
-            var lots = await _unitOfWork.Lots.GetAll();
-            var filtered = lots.Where(l => l.CategoryId == categoryId);
-            return _mapper.Map<IEnumerable<LotDTO>>(filtered);
-        }
-
         public async Task<LotDTO?> GetById(Guid id)
         {
             var lot = await _unitOfWork.Lots.GetById(id);
             return lot != null ? _mapper.Map<LotDTO>(lot) : null;
+        }
+
+        public async Task<IEnumerable<BidDTO>> GetLotBids(Guid lotId)
+        {
+            var lot = await _unitOfWork.Lots.GetById(lotId);
+            if (lot is not null)
+            {
+                var bids = lot.Bids;
+                return _mapper.Map<IEnumerable<BidDTO>>(bids);
+            }
+            else
+            {
+                throw new ArgumentException("Lot not found");
+            }
         }
 
         public async Task UpdateLot(LotDTO dto)

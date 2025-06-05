@@ -1,28 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { getUserById } from "../../api/user_api.ts";
+import { getUserBids, getUserById, getUserLots } from "../../api/user_api.ts";
 import type { IUser } from "../../models/types/User.ts";
 import router from "../../router.ts";
 import { capitalize } from "../../lib/auction.ts";
 import { useAuth } from "../../composables/useAuth.ts";
+import type { ILot } from "../../models/types/Lot.ts";
+import type { IBid } from "../../models/types/Bid.ts";
 
 const user = ref<IUser>();
+const userLots = ref<ILot[]>([]);
+const userBids = ref<IBid[]>([]);
+
 const { currentUser } = useAuth();
 
 const props = defineProps<{
-  id: string;
+  userId: string;
 }>();
 
 onMounted(async () => {
-  const userId = props.id;
-  if (userId) {
-    try {
-      user.value = await getUserById(userId);
-      return { user };
-    } catch (error) {
-      router.push({ name: "NotFound" });
-    }
-  }
+  user.value = await getUserById(props.userId);
+  userLots.value = await getUserLots(props.userId);
+  userBids.value = await getUserBids(props.userId);
 });
 </script>
 
@@ -37,18 +36,18 @@ onMounted(async () => {
       <div v-if="user.id == currentUser?.id">
         <router-link
           class="button mt-4"
-          :to="{ name: 'AddLot', params: { id: user.id } }"
+          :to="{ name: 'AddLot', params: { userId: user.id } }"
         >
           Create Lot
         </router-link>
       </div>
-      <div v-if="user.lots && user.lots.length > 0">
+      <div v-if="userLots && userLots.length > 0">
         <h3 class="mt-4">User's Lots</h3>
         <ul class="grid grid-cols-3 gap-4 items-start w-full">
           <router-link
-            :to="{ name: 'Lot', params: { id: lot.id } }"
-            v-for="lot in user.lots"
-            :key="lot.id"
+            :to="{ name: 'Lot', params: { lotId: lot.id } }"
+            v-for="lot in userLots"
+            :key="lot.id!"
             class="button pt-1.5"
           >
             {{ lot.title }}

@@ -13,7 +13,7 @@
         v-model="parent"
       >
         <option :value="null">No parent</option>
-        <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+        <option v-for="cat in categories" :key="cat.id!" :value="cat.id">
           {{ cat.name }}
         </option>
       </select>
@@ -33,12 +33,16 @@ import type { ICategory } from "../../models/types/Category.ts";
 import { getCategories, addCategory } from "../../api/category_api.ts";
 
 const name = ref<string>("");
+const parentId = ref<string>("");
 const parent = ref<ICategory | null>(null);
 const categories = ref<ICategory[]>([]);
 
 onMounted(async () => {
   categories.value = await getCategories();
-  console.log(categories.value);
+  if (parentId.value) {
+    parent.value =
+      categories.value.find((cat) => cat.id === parentId.value) || null;
+  }
 });
 
 const submit = async () => {
@@ -47,10 +51,12 @@ const submit = async () => {
     return;
   }
 
-  await addCategory({
+  const category = {
     name: name.value,
-    parent: parent.value,
-  } as ICategory);
+    parentId: parentId.value,
+  } as ICategory;
+
+  await addCategory(category);
 
   return { name, parent, categories, submit };
 };

@@ -42,10 +42,23 @@ namespace BLL.Service
             var users = await _unitOfWork.Users.GetAll();
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
-        public async Task<IEnumerable<UserShortDTO>> GetAllShort()
+        public async Task<IEnumerable<BidDTO>> GetUserBids(Guid userId)
         {
-            var users = await _unitOfWork.Users.GetAll();
-            return _mapper.Map<IEnumerable<UserShortDTO>>(users);
+            var user = await _unitOfWork.Users.GetById(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found");
+            }
+            return _mapper.Map<IEnumerable<BidDTO>>(user.Bids);
+        }
+        public async Task<IEnumerable<LotDTO>> GetUserLots(Guid userId)
+        {
+            var user = await _unitOfWork.Users.GetById(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("User not found");
+            }
+            return _mapper.Map<IEnumerable<LotDTO>>(user.Lots);
         }
         public async Task<UserDTO?> GetById(Guid id)
         {

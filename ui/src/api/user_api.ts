@@ -1,6 +1,8 @@
 import type { IUser } from "../models/types/User.ts";
 import api from "../lib/axios.ts";
 import type { IRegisterUser } from "../models/types/RegisterUser.ts";
+import type { ILot } from "../models/types/Lot.ts";
+import type { IBid } from "../models/types/Bid.ts";
 
 export async function apiLogin(
   username: string,
@@ -34,4 +36,12 @@ export async function apiLogout() {
   await api.post("/auth/logout");
 }
 
-export default api;
+export async function getUserLots(id: string): Promise<ILot[]> {
+  const res = await api.get(`/users/${id}/lots`);
+  return res.data as ILot[]; // Array of lots
+}
+
+export async function getUserBids(id: string): Promise<IBid[]> {
+  const res = await api.get(`/users/${id}/bids`);
+  return res.data as IBid[]; // Array of bids
+}

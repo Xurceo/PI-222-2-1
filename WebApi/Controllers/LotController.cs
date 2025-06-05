@@ -35,13 +35,6 @@ namespace WebApi.Controllers
             return Ok(lot);
         }
 
-        [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAllByCategoryId(Guid categoryId)
-        {
-            var lots = await _lottingService.GetAllByCategoryId(categoryId);
-            return Ok(lots);
-        }
-
         [Authorize(Roles = "MANAGER,USER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddLot([FromBody] CreateLotDTO dto)
@@ -113,6 +106,24 @@ namespace WebApi.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok($"Lot with id: {lotId} confirmed");
+        }
+
+        [HttpGet("{lotId}/bids")]
+        public async Task<ActionResult<BidDTO>> GetLotBids(Guid lotId)
+        {
+            try
+            {
+                var bids = await _lottingService.GetLotBids(lotId);
+                return Ok(bids);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

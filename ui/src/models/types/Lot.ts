@@ -1,18 +1,15 @@
-import type { IBid } from "./Bid";
-import type { ICategory } from "./Category";
-import type { IUser } from "./User";
 import type { LotStatus } from "../enums/LotStatus.ts";
 
 export interface ILot {
-  id: string;
+  id: string | null;
   title: string;
   description: string;
   startPrice: number;
-  winner: IUser;
-  owner: IUser;
-  category: ICategory;
-  bids: IBid[];
-  status: LotStatus;
-  startTime: Date;
+  winnerId: string | null;
+  ownerId: string | null;
+  categoryId: string;
+  bidIds: string[] | null;
+  status: LotStatus | null;
+  startTime: Date | null;
   endTime: Date;
 }
