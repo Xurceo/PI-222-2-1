@@ -80,7 +80,7 @@ const createLot = async () => {
       </div>
       <div class="mb-4">
         <label for="startPrice" class="block text-sm font-medium mb-2"
-          >Start Price</label
+          >Start Price (₴)</label
         >
         <input
           v-model.number="startPrice"

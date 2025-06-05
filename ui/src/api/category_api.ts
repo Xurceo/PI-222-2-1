@@ -3,15 +3,17 @@ import type { ICategory } from "../models/types/Category.ts";
 import api from "../lib/axios.ts";
 import type { ILot } from "../models/types/Lot.ts";
 
-export async function addCategory(category: ICategory): Promise<void> {
+export async function addCategory(category: ICategory): Promise<string | null> {
   try {
-    await api.post(`/categories`, category);
+    const res = await api.post(`/categories`, category);
+    return res.data as string;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.response?.data || error.message);
     } else {
       console.error("Unexpected error:", error);
     }
+    return null;
   }
 }
 

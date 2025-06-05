@@ -87,7 +87,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPut("{lotId}/confirm")]
-        public async Task<ActionResult<Guid>> ConfirmLot(Guid lotId)
+        public async Task<ActionResult<string>> ConfirmLot(Guid lotId)
         {
             try
             {

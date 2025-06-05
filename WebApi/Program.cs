@@ -8,6 +8,7 @@ using DAL.UoW;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebApi.Infrastructure;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,15 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ILottingService, LottingService>();
 builder.Services.AddHostedService<LotAutoService>();
 
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "uk-UA" };
+    options.SetDefaultCulture("uk-UA")
+           .AddSupportedCultures(supportedCultures)
+           .AddSupportedUICultures(supportedCultures);
+
+    options.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -115,6 +125,7 @@ app.Use(async (context, next) =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRequestLocalization();
 
 app.MapControllers();
 

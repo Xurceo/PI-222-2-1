@@ -1,22 +1,31 @@
-<script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+<script setup lang="ts">
+import { defineComponent, ref, onMounted, useAttrs } from "vue";
 import type { ICategory } from "../../models/types/Category.ts";
 import { getCategories } from "../../api/category_api.ts";
+import { useAuth } from "../../composables/useAuth.ts";
 
-export default defineComponent({
-  setup() {
-    const categories = ref<ICategory[]>([]);
+const categories = ref<ICategory[]>([]);
 
-    onMounted(async () => {
-      categories.value = await getCategories();
-    });
+const { currentUser } = useAuth();
 
-    return { categories };
-  },
+onMounted(async () => {
+  categories.value = await getCategories();
 });
 </script>
 
 <template>
+  <div
+    v-if="
+      currentUser &&
+      (currentUser.role === `MANAGER` || currentUser.role === `ADMIN`)
+    "
+  >
+    <router-link
+      class="button pt-1.5 mt-4 w-56 ml-4"
+      :to="{ name: 'AddCategory' }"
+      >Add Category</router-link
+    >
+  </div>
   <div class="m-10 justify-center text-black" v-if="categories">
     <h1 class="m-10">Categories</h1>
     <ul class="flex flex-col items-start">

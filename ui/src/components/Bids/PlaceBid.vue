@@ -49,7 +49,7 @@ const placeBidHandler = async () => {
     errorMessage.value = "Bid amount must be greater than zero.";
     return;
   } else if (lotBids.value.length > 0 && bidAmount.value <= highestBid) {
-    errorMessage.value = `Bid amount must be greater than the current highest bid (${highestBid}$).`;
+    errorMessage.value = `Bid amount must be greater than the current highest bid (${highestBid}₴).`;
     return;
   } else if (lot.value!.status !== 2) {
     errorMessage.value = "You can only place bids on confirmed lots.";
@@ -82,7 +82,7 @@ const placeBidHandler = async () => {
     <form @submit.prevent="placeBidHandler" class="space-y-4">
       <div>
         <label for="bidAmount" class="block text-sm font-medium text-gray-700"
-          >Bid Amount ($)</label
+          >Bid Amount (₴)</label
         >
         <input
           v-model.number="bidAmount"

@@ -1,7 +1,7 @@
 <template>
-  <div class="flex-1/2">
+  <div class="">
     <h1 class="text-black m-20">Create Category</h1>
-    <div class="form m-10">
+    <div class="flex flex-row justify-center form m-10">
       <input
         class="bg-white hover:bg-neutral-200 duration-300 text-black h-12 w-96 p-2 m-1 border-gray-600 border-2 rounded-lg"
         v-model="name"
@@ -9,7 +9,7 @@
         placeholder="EnterName"
       />
       <select
-        class="bg-white hover:bg-neutral-200 duration-300 text-black h-12 p-2 border-gray-600 border-2 rounded-lg select"
+        class="bg-white hover:bg-neutral-200 duration-300 text-black mt-2 h-12 p-2 border-gray-600 border-2 rounded-lg select"
         v-model="parent"
       >
         <option :value="null">No parent</option>
@@ -18,7 +18,7 @@
         </option>
       </select>
       <button
-        class="border-2 rounded-lg border-gray-600 h-12 w-48 text-xl text-black m-2 cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300"
+        class="border-2 rounded-lg border-gray-600 h-12 w-48 text-xl text-black m-2 p-2 cursor-pointer bg-amber-100 hover:bg-amber-200 duration-300"
         @click="submit"
       >
         Submit
@@ -31,18 +31,14 @@
 import { ref, onMounted } from "vue";
 import type { ICategory } from "../../models/types/Category.ts";
 import { getCategories, addCategory } from "../../api/category_api.ts";
+import router from "../../router.ts";
 
 const name = ref<string>("");
-const parentId = ref<string>("");
-const parent = ref<ICategory | null>(null);
+const parent = ref<string | null>(null);
 const categories = ref<ICategory[]>([]);
 
 onMounted(async () => {
   categories.value = await getCategories();
-  if (parentId.value) {
-    parent.value =
-      categories.value.find((cat) => cat.id === parentId.value) || null;
-  }
 });
 
 const submit = async () => {
@@ -53,11 +49,11 @@ const submit = async () => {
 
   const category = {
     name: name.value,
-    parentId: parentId.value,
+    parentId: parent.value,
   } as ICategory;
 
-  await addCategory(category);
-
-  return { name, parent, categories, submit };
+  const categoryId = await addCategory(category);
+  alert("Category Created Successfully!");
+  router.push({ name: "Category", params: { categoryId: categoryId } });
 };
 </script>

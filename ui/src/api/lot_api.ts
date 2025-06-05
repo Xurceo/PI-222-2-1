@@ -57,3 +57,19 @@ export async function getLotBids(id: string): Promise<IBid[]> {
     }
   }
 }
+
+export async function confirmLot(lotId: string): Promise<string> {
+  try {
+    const res = await api.put(`/lots/${lotId}/confirm`);
+    return res.data as string;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.response?.data || error.message);
+      console.log(error.response);
+      throw new Error("Error confirming lot.");
+    } else {
+      console.error("Unexpected error:", error);
+      throw new Error("Unexpected error occurred.");
+    }
+  }
+}

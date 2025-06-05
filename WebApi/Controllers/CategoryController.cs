@@ -52,7 +52,7 @@ namespace WebApi.Controllers
         public async Task<ActionResult<Guid>> AddCategory([FromBody] CreateCategoryDTO dto)
         {
             var id = await _categoryService.AddCategory(dto);
-            return CreatedAtAction(nameof(GetById), new { id }, dto);
+            return Ok(id);
         }
 
 

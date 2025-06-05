@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { ILot } from "../../models/types/Lot.ts";
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { getLotBids, getLotById } from "../../api/lot_api.ts";
+import { confirmLot, getLotBids, getLotById } from "../../api/lot_api.ts";
 import { statusMap } from "../../models/maps/statusMap.ts";
 import type { IUser } from "../../models/types/User.ts";
 import { getAllUsers } from "../../api/user_api.ts";
 import type { IBid } from "../../models/types/Bid.ts";
 import type { ICategory } from "../../models/types/Category.ts";
 import { getCategoryById } from "../../api/category_api.ts";
+import { useAuth } from "../../composables/useAuth.ts";
+import { LotStatus } from "../../models/enums/LotStatus.ts";
 
 const lot = ref<ILot>();
 const lotBids = ref<IBid[]>([]);
@@ -15,6 +17,8 @@ const users = ref<IUser[]>([]);
 const lotCategory = ref<ICategory>();
 const now = ref(new Date());
 let intervalId: number | undefined = undefined;
+
+const { currentUser } = useAuth();
 
 const props = defineProps<{
   lotId: string;
@@ -24,25 +28,7 @@ onMounted(async () => {
   intervalId = setInterval(() => {
     now.value = new Date();
   }, 1000);
-  lot.value = await getLotById(props.lotId);
-  users.value = await getAllUsers();
-  lotBids.value = await getLotBids(props.lotId);
-  lotCategory.value = await getCategoryById(lot.value.categoryId);
-
-  console.log(lotBids.value);
-  console.log(users.value);
-
-  if (lot.value) {
-    lotBids.value = lotBids.value.sort((a, b) => b.amount - a.amount);
-  }
-  lotBids.value.sort((b) => b.amount);
-
-  if (lotBids.value) {
-    lotBids.value = lotBids.value.map((bid) => ({
-      ...bid,
-      user: users.value.find((u) => u.id === bid.userId) || null,
-    }));
-  }
+  await fetchLot();
 });
 
 onUnmounted(() => {
@@ -69,6 +55,30 @@ const elapsed = computed<string | number>(() => {
 
   return result;
 });
+
+const fetchLot = async () => {
+  lot.value = await getLotById(props.lotId);
+  users.value = await getAllUsers();
+  lotBids.value = await getLotBids(props.lotId);
+  lotCategory.value = await getCategoryById(lot.value.categoryId);
+
+  if (lot.value) {
+    lotBids.value = lotBids.value.sort((a, b) => b.amount - a.amount);
+  }
+  lotBids.value.sort((b) => b.amount);
+
+  if (lotBids.value) {
+    lotBids.value = lotBids.value.map((bid) => ({
+      ...bid,
+      user: users.value.find((u) => u.id === bid.userId) || null,
+    }));
+  }
+};
+
+const confirmLot1 = async () => {
+  await confirmLot(props.lotId);
+  await fetchLot();
+};
 </script>
 
 <template>
@@ -83,10 +93,10 @@ const elapsed = computed<string | number>(() => {
         {{ users.find((u) => u.id === lot?.ownerId)?.username }}
       </p>
       <p><strong>Description:</strong> {{ lot?.description }}</p>
-      <p><strong>Starting Price:</strong> {{ lot?.startPrice }} $</p>
+      <p><strong>Starting Price:</strong> {{ lot?.startPrice }} ₴</p>
       <p>
         <strong>Current Price:</strong>
-        {{ lotBids.length > 0 ? lotBids[0].amount : lot.startPrice }} $
+        {{ lotBids.length > 0 ? lotBids[0].amount : lot.startPrice }} ₴
       </p>
       <p><strong>Status:</strong> {{ statusMap[lot.status!] }}</p>
       <p><strong>Category:</strong> {{ lotCategory?.name }}</p>
@@ -96,6 +106,19 @@ const elapsed = computed<string | number>(() => {
       </p>
 
       <p v-if="lot.status == 2">{{ elapsed }}</p>
+
+      <!-- Confirm Lot -->
+      <button
+        v-if="
+          (lot.status === LotStatus.Pending &&
+            currentUser?.role === `MANAGER`) ||
+          currentUser?.role === `ADMIN`
+        "
+        class="flex flex-col button min-w-full pt-1.5 mt-4"
+        v-on:click="confirmLot1"
+      >
+        Confirm Lot
+      </button>
 
       <router-link
         v-if="lot.status === 2"
@@ -125,7 +148,7 @@ const elapsed = computed<string | number>(() => {
                 {{ users.find((u) => u.id === bid.userId)?.username }}
               </router-link>
             </td>
-            <td class="px-4 py-2">{{ bid.amount }} $</td>
+            <td class="px-4 py-2">{{ bid.amount }} ₴</td>
             <td class="px-4 py-2">
               {{ bid.time.toLocaleString() }}
             </td>
