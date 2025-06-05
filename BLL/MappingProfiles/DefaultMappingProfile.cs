@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using BLL.CreateDTOs;
 using BLL.DTOs;
-using BLL.ShortDTOs;
 using DAL.Models;
 
 namespace BLL.MappingProfiles

@@ -4,8 +4,6 @@ using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using BLL.ShortDTOs;
-
 namespace WebApi.Controllers
 {
     [ApiController]
@@ -19,7 +17,7 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserGetDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
         {
             var users = await _userService.GetAll();
             return Ok(users);
@@ -32,6 +30,20 @@ namespace WebApi.Controllers
             if (user == null)
                 return NotFound();
             return Ok(user);
+        }
+
+        [HttpGet("{id}/bids")]
+        public async Task<ActionResult<IEnumerable<BidDTO>>> GetUserBids(Guid id)
+        {
+            var bids = await _userService.GetUserBids(id);
+            return Ok(bids);
+        }
+
+        [HttpGet("{id}/lots")]
+        public async Task<ActionResult<IEnumerable<LotDTO>>> GetUserLots(Guid id)
+        {
+            var lots = await _userService.GetUserLots(id);
+            return Ok(lots);
         }
 
         [Authorize(Roles = "MANAGER,ADMIN")]

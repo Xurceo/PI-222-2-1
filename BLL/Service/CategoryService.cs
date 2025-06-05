@@ -3,9 +3,7 @@ using BLL.Interfaces;
 using BLL.DTOs;
 using DAL.Models;
 using DAL.UoW;
-using Microsoft.EntityFrameworkCore;
 using BLL.CreateDTOs;
-using BLL.ShortDTOs;
 
 namespace BLL.Service
 {
@@ -44,11 +42,6 @@ namespace BLL.Service
         {
             var categories = await _unitOfWork.Categories.GetAll(c => c.Lots, c => c.Subcategories);
             return _mapper.Map<IEnumerable<CategoryDTO>>(categories);
-        }
-        public async Task<IEnumerable<CategoryShortDTO>> GetAllShort()
-        {
-            var categories = await _unitOfWork.Categories.GetAll();
-            return _mapper.Map<IEnumerable<CategoryShortDTO>>(categories);
         }
         public async Task<CategoryDTO?> GetById(Guid id)
         {

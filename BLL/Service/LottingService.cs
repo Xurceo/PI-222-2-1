@@ -6,8 +6,6 @@ using DAL.Models;
 using DAL.UoW;
 using BLL.Exceptions;
 using DAL.Enums;
-using BLL.ShortDTOs;
-
 namespace BLL.Service
 {
     public class LottingService : ILottingService
@@ -73,11 +71,6 @@ namespace BLL.Service
             var lots = await _unitOfWork.Lots.GetAll(l => l.Category, l => l.Owner, l => l.Bids);
             return _mapper.Map<IEnumerable<LotDTO>>(lots);
         }
-        public async Task<IEnumerable<LotShortDTO>> GetAllShort()
-        {
-            var lots = await _unitOfWork.Lots.GetAll();
-            return _mapper.Map<IEnumerable<LotShortDTO>>(lots);
-        }
 
         public async Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId)
         {
@@ -86,10 +79,23 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<LotDTO>>(filtered);
         }
 
-        public async Task<LotShortDTO?> GetById(Guid id)
+        public async Task<LotDTO?> GetById(Guid id)
         {
             var lot = await _unitOfWork.Lots.GetById(id);
-            return lot != null ? _mapper.Map<LotShortDTO>(lot) : null;
+            return lot != null ? _mapper.Map<LotDTO>(lot) : null;
+        }
+        public async Task<IEnumerable<BidDTO>> GetLotBids(Guid lotId)
+        {
+            var lot = await _unitOfWork.Lots.GetById(lotId);
+            if (lot is not null)
+            {
+                var bids = lot.Bids;
+                return _mapper.Map<IEnumerable<BidDTO>>(bids);
+            }
+            else
+            {
+                throw new ArgumentException("Lot not found");
+            }
         }
 
         public async Task UpdateLot(LotDTO dto)

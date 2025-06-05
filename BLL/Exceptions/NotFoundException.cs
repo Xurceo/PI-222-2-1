@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BLL.Exceptions
+﻿namespace BLL.Exceptions
 {
     public class NotFoundException : Exception
     {
