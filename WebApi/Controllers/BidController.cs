@@ -21,7 +21,7 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BidDTO>>> GetAll()
         {
-            var bids = await _biddingService.GetAllShort();
+            var bids = await _biddingService.GetAll();
             return Ok(bids);
         }
 

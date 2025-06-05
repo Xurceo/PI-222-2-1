@@ -6,7 +6,6 @@ using BLL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using DAL.Enums;
-using BLL.ShortDTOs;
 
 namespace WebApi.Controllers
 {
@@ -21,15 +20,14 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAll()
         {
-            var lots = await _lottingService.GetAllShort();
-            var getLots = await _lottingService.GetAll();
+            var lots = await _lottingService.GetAll();
             return Ok(lots);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<LotShortDTO>> GetById(Guid id)
+        public async Task<ActionResult<LotDTO>> GetById(Guid id)
         {
             var lot = await _lottingService.GetById(id);
             if (lot == null)
@@ -65,7 +63,7 @@ namespace WebApi.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)
-                || !Guid.TryParse(userId, out Guid userGuid) && userGuid != dto.Owner.Id)
+                || !Guid.TryParse(userId, out Guid userGuid) && userGuid != dto.OwnerId)
                 return Unauthorized("You are not authorized to update this lot.");
             await _lottingService.UpdateLot(dto);
             return NoContent();

@@ -13,9 +13,9 @@ namespace BLL.DTOs
         public LotStatus Status { get; set; } = LotStatus.Pending;
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public required UserDTO Owner { get; set; }
-        public UserDTO? Winner { get; set; }
-        public required CategoryDTO Category { get; set; }
-        public ICollection<BidDTO> Bids { get; set; } = [];
+        public required Guid OwnerId { get; set; }
+        public Guid? WinnerId { get; set; }
+        public required Guid CategoryId { get; set; }
+        public ICollection<Guid> BidIds { get; set; } = [];
     }
 }

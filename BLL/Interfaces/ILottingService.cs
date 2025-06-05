@@ -11,7 +11,7 @@ namespace BLL.Interfaces
         Task<IEnumerable<LotShortDTO>> GetAllShort();
 
         Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId);
-        Task<LotShortDTO?> GetById(Guid id);
+        Task<LotDTO?> GetById(Guid id);
         Task<Guid> AddLot(CreateLotDTO lot);
         Task UpdateLot(LotDTO lot);
         Task DeleteLot(Guid id);

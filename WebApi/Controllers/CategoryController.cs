@@ -18,9 +18,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryShortDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAll()
         {
-            var categories = await _categoryService.GetAllShort();
+            var categories = await _categoryService.GetAll();
             return Ok(categories);
         }
 
