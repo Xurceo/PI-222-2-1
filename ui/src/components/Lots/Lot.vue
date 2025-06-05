@@ -1,45 +1,34 @@
 <script setup lang="ts">
 import type { ILot } from "../../models/types/Lot.ts";
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { getLotById } from "../../api/lot_api.ts";
+import { confirmLot, getLotBids, getLotById } from "../../api/lot_api.ts";
 import { statusMap } from "../../models/maps/statusMap.ts";
-import { IUser } from "../../models/types/User.ts";
+import type { IUser } from "../../models/types/User.ts";
 import { getAllUsers } from "../../api/user_api.ts";
+import type { IBid } from "../../models/types/Bid.ts";
+import type { ICategory } from "../../models/types/Category.ts";
+import { getCategoryById } from "../../api/category_api.ts";
+import { useAuth } from "../../composables/useAuth.ts";
+import { LotStatus } from "../../models/enums/LotStatus.ts";
 
 const lot = ref<ILot>();
-const bids = ref<ILot["bids"]>([]);
+const lotBids = ref<IBid[]>([]);
 const users = ref<IUser[]>([]);
+const lotCategory = ref<ICategory>();
 const now = ref(new Date());
 let intervalId: number | undefined = undefined;
 
+const { currentUser } = useAuth();
+
 const props = defineProps<{
-  id: string;
+  lotId: string;
 }>();
 
 onMounted(async () => {
-  const lotId = props.id;
   intervalId = setInterval(() => {
     now.value = new Date();
   }, 1000);
-  if (lotId) {
-    try {
-      lot.value = await getLotById(lotId);
-      users.value = await getAllUsers();
-      if (lot.value) {
-        bids.value = lot.value.bids.sort((a, b) => b.amount - a.amount);
-      }
-      bids.value.sort((b) => b.amount);
-
-      if (bids.value) {
-        bids.value = bids.value.map((bid) => ({
-          ...bid,
-          user: users.value.find((u) => u.id === bid.userId) || null,
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching lot:", error);
-    }
-  }
+  await fetchLot();
 });
 
 onUnmounted(() => {
@@ -66,6 +55,30 @@ const elapsed = computed<string | number>(() => {
 
   return result;
 });
+
+const fetchLot = async () => {
+  lot.value = await getLotById(props.lotId);
+  users.value = await getAllUsers();
+  lotBids.value = await getLotBids(props.lotId);
+  lotCategory.value = await getCategoryById(lot.value.categoryId);
+
+  if (lot.value) {
+    lotBids.value = lotBids.value.sort((a, b) => b.amount - a.amount);
+  }
+  lotBids.value.sort((b) => b.amount);
+
+  if (lotBids.value) {
+    lotBids.value = lotBids.value.map((bid) => ({
+      ...bid,
+      user: users.value.find((u) => u.id === bid.userId) || null,
+    }));
+  }
+};
+
+const confirmLot1 = async () => {
+  await confirmLot(props.lotId);
+  await fetchLot();
+};
 </script>
 
 <template>
@@ -74,21 +87,38 @@ const elapsed = computed<string | number>(() => {
   >
     <h2 class="text-2xl font-semibold mb-6 text-center">Lot Details</h2>
     <div v-if="lot">
-      <p><strong>Title:</strong> {{ lot.title }}</p>
-      <p><strong>Owner:</strong> {{ lot.owner.username }}</p>
-      <p><strong>Description:</strong> {{ lot.description }}</p>
-      <p><strong>Starting Price:</strong> {{ lot.startPrice }} $</p>
+      <p><strong>Title:</strong> {{ lot?.title }}</p>
+      <p>
+        <strong>Owner:</strong>
+        {{ users.find((u) => u.id === lot?.ownerId)?.username }}
+      </p>
+      <p><strong>Description:</strong> {{ lot?.description }}</p>
+      <p><strong>Starting Price:</strong> {{ lot?.startPrice }} ₴</p>
       <p>
         <strong>Current Price:</strong>
-        {{ bids.length > 0 ? bids[0].amount : lot.startPrice }} $
+        {{ lotBids.length > 0 ? lotBids[0].amount : lot.startPrice }} ₴
       </p>
-      <p><strong>Status:</strong> {{ statusMap[lot.status] }}</p>
-      <p><strong>Category:</strong> {{ lot.category.name }}</p>
-      <p v-if="lot.winner">
-        <strong>Winner:</strong> {{ lot.winner.username }}
+      <p><strong>Status:</strong> {{ statusMap[lot.status!] }}</p>
+      <p><strong>Category:</strong> {{ lotCategory?.name }}</p>
+      <p v-if="lot.winnerId">
+        <strong>Winner:</strong>
+        {{ users.find((u) => u.id === lot?.winnerId)?.username }}
       </p>
 
       <p v-if="lot.status == 2">{{ elapsed }}</p>
+
+      <!-- Confirm Lot -->
+      <button
+        v-if="
+          (lot.status === LotStatus.Pending &&
+            currentUser?.role === `MANAGER`) ||
+          currentUser?.role === `ADMIN`
+        "
+        class="flex flex-col button min-w-full pt-1.5 mt-4"
+        v-on:click="confirmLot1"
+      >
+        Confirm Lot
+      </button>
 
       <router-link
         v-if="lot.status === 2"
@@ -98,7 +128,7 @@ const elapsed = computed<string | number>(() => {
       >
 
       <table
-        v-if="lot.bids && lot.bids.length > 0"
+        v-if="lotBids && lotBids.length > 0"
         class="min-w-full mt-4 border rounded"
       >
         <thead>
@@ -109,16 +139,16 @@ const elapsed = computed<string | number>(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="bid in bids" :key="bid.id" class="border-t">
+          <tr v-for="bid in lotBids" :key="bid.id!" class="border-t">
             <td class="px-4 py-2">
               <router-link
-                :to="{ name: 'Profile', params: { id: bid.user?.id } }"
+                :to="{ name: 'Profile', params: { userId: bid.userId } }"
                 class="text-blue-600 hover:underline"
               >
-                {{ bid.user.username }}
+                {{ users.find((u) => u.id === bid.userId)?.username }}
               </router-link>
             </td>
-            <td class="px-4 py-2">{{ bid.amount }} $</td>
+            <td class="px-4 py-2">{{ bid.amount }} ₴</td>
             <td class="px-4 py-2">
               {{ bid.time.toLocaleString() }}
             </td>

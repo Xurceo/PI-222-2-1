@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public required string Name { get; set; } = string.Empty;
         public Guid? ParentId { get; set; }
-        public IEnumerable<CategoryDTO> Subcategories { get; set; } = [];
-        public IEnumerable<LotDTO> Lots { get; set; } = [];
+        public IEnumerable<Guid> SubcategoryIds { get; set; } = [];
+        public IEnumerable<Guid> LotIds { get; set; } = [];
     }
 }

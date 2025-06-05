@@ -72,6 +72,7 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<LotDTO>>(lots);
         }
 
+<<<<<<< HEAD
         public async Task<IEnumerable<LotDTO>> GetAllByCategoryId(Guid categoryId)
         {
             var lots = await _unitOfWork.Lots.GetAll();
@@ -79,11 +80,17 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<LotDTO>>(filtered);
         }
 
+=======
+>>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         public async Task<LotDTO?> GetById(Guid id)
         {
             var lot = await _unitOfWork.Lots.GetById(id);
             return lot != null ? _mapper.Map<LotDTO>(lot) : null;
         }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         public async Task<IEnumerable<BidDTO>> GetLotBids(Guid lotId)
         {
             var lot = await _unitOfWork.Lots.GetById(lotId);
@@ -101,12 +108,36 @@ namespace BLL.Service
         public async Task UpdateLot(LotDTO dto)
         {
             var lot = await _unitOfWork.Lots.GetById(dto.Id);
-            if (lot == null)
-            {
-                throw new NotFoundException(lot);
-            }
+
+            ArgumentNullException.ThrowIfNull(lot, "Lot not found");
 
             _mapper.Map(dto, lot);
+
+            if (dto.BidIds != null)
+            {
+                // Get existing bids to remove (those not in the new list)
+                var bidsToRemove = lot.Bids
+                    .Where(b => !dto.BidIds.Contains(b.Id))
+                    .ToList();
+                // Get bids to add (those not already in the collection)
+                var existingBidIds = lot.Bids.Select(b => b.Id).ToList();
+                var bidsToAddIds = dto.BidIds.Except(existingBidIds);
+                // Remove bids
+                foreach (var bid in bidsToRemove)
+                {
+                    lot.Bids.Remove(bid);
+                }
+                // Add new bids
+                foreach (var bidId in bidsToAddIds)
+                {
+                    var bid = await _unitOfWork.Bids.GetById(bidId);
+                    if (bid != null)
+                    {
+                        lot.Bids.Add(bid);
+                    }
+                }
+            }
+
             await _unitOfWork.Lots.Update(lot);
             await _unitOfWork.Lots.Save();
         }

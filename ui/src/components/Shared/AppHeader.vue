@@ -27,7 +27,7 @@
     <div v-if="currentUser" class="flex flex-row text-2xl text-black mr-4">
       <router-link
         class="nav-item cursor-pointer"
-        :to="{ name: 'Profile', params: { id: currentUser.id } }"
+        :to="{ name: 'Profile', params: { userId: currentUser.id } }"
       >
         Welcome, {{ currentUser.username }}
       </router-link>

@@ -6,7 +6,6 @@ using BLL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using DAL.Enums;
-using BLL.ShortDTOs;
 
 namespace WebApi.Controllers
 {
@@ -21,27 +20,19 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAll()
         {
-            var lots = await _lottingService.GetAllShort();
-            var getLots = await _lottingService.GetAll();
+            var lots = await _lottingService.GetAll();
             return Ok(lots);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<LotShortDTO>> GetById(Guid id)
+        public async Task<ActionResult<LotDTO>> GetById(Guid id)
         {
             var lot = await _lottingService.GetById(id);
             if (lot == null)
                 return NotFound();
             return Ok(lot);
-        }
-
-        [HttpGet("category/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<LotDTO>>> GetAllByCategoryId(Guid categoryId)
-        {
-            var lots = await _lottingService.GetAllByCategoryId(categoryId);
-            return Ok(lots);
         }
 
         [Authorize(Roles = "MANAGER,USER,ADMIN")]
@@ -65,7 +56,7 @@ namespace WebApi.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)
-                || !Guid.TryParse(userId, out Guid userGuid) && userGuid != dto.Owner.Id)
+                || !Guid.TryParse(userId, out Guid userGuid) && userGuid != dto.OwnerId)
                 return Unauthorized("You are not authorized to update this lot.");
             await _lottingService.UpdateLot(dto);
             return NoContent();
@@ -96,7 +87,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = "MANAGER,ADMIN")]
         [HttpPut("{lotId}/confirm")]
-        public async Task<ActionResult<Guid>> ConfirmLot(Guid lotId)
+        public async Task<ActionResult<string>> ConfirmLot(Guid lotId)
         {
             try
             {
@@ -115,6 +106,24 @@ namespace WebApi.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok($"Lot with id: {lotId} confirmed");
+        }
+
+        [HttpGet("{lotId}/bids")]
+        public async Task<ActionResult<BidDTO>> GetLotBids(Guid lotId)
+        {
+            try
+            {
+                var bids = await _lottingService.GetLotBids(lotId);
+                return Ok(bids);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -33,7 +33,11 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}/lots")]
+<<<<<<< HEAD
         public async Task<ActionResult<IEnumerable<LotDTO>>> GetCategoryLots(Guid id)
+=======
+        public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetCategoryLots(Guid id)
+>>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         {
             var lots = await _categoryService.GetCategoryLots(id);
             return Ok(lots);

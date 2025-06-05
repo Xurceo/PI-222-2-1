@@ -33,14 +33,22 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("{id}/bids")]
+<<<<<<< HEAD
         public async Task<ActionResult<IEnumerable<BidDTO>>> GetUserBids(Guid id)
+=======
+        public async Task<ActionResult<IEnumerable<BidShortDTO>>> GetUserBids(Guid id)
+>>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         {
             var bids = await _userService.GetUserBids(id);
             return Ok(bids);
         }
 
         [HttpGet("{id}/lots")]
+<<<<<<< HEAD
         public async Task<ActionResult<IEnumerable<LotDTO>>> GetUserLots(Guid id)
+=======
+        public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetUserLots(Guid id)
+>>>>>>> 15e7ec842fee30f522e1a47cda5b4560e39ffc52
         {
             var lots = await _userService.GetUserLots(id);
             return Ok(lots);
