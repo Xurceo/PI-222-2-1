@@ -4,7 +4,9 @@ import type { IUser } from "./User";
 export interface IBid {
   id: string;
   amount: number;
-  time: string;
-  lot: ILot;
-  user: IUser;
+  time: Date;
+  lot: ILot | null;
+  lotId: string;
+  user: IUser | null;
+  userId: string;
 }

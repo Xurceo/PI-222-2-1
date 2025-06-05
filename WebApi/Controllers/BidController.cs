@@ -51,6 +51,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Guid>> PlaceBid([FromBody] PlaceBidDTO dto)
         {
+            Guid id;
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Guid userGuid;
             if (!string.IsNullOrEmpty(userId))
@@ -60,8 +61,24 @@ namespace WebApi.Controllers
                 return Unauthorized(userId);
             }
 
-            var id = await _biddingService.PlaceBid(userGuid, dto.LotId, dto.Amount);
-            return CreatedAtAction(nameof(PlaceBid), new { id });
+            try
+            {
+
+                id = await _biddingService.PlaceBid(userGuid, dto.LotId, dto.Amount);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+            return Ok("Bid placed successfully.");
         }
     }
 }

@@ -43,7 +43,6 @@ export async function getCategories(): Promise<ICategory[]> {
 export async function getCategoryById(id: string): Promise<ICategory> {
   try {
     const response = await api.get(`/categories/${id}`);
-    console.log(response.data);
     return response.data as ICategory;
   } catch (error) {
     if (axios.isAxiosError(error)) {

@@ -4,8 +4,10 @@ import { getUserById } from "../../api/user_api.ts";
 import type { IUser } from "../../models/types/User.ts";
 import router from "../../router.ts";
 import { capitalize } from "../../lib/auction.ts";
+import { useAuth } from "../../composables/useAuth.ts";
 
 const user = ref<IUser>();
+const { currentUser } = useAuth();
 
 const props = defineProps<{
   id: string;
@@ -32,6 +34,14 @@ onMounted(async () => {
     <div v-if="user">
       <p><strong>Username:</strong> {{ user.username }}</p>
       <p><strong>Role:</strong> {{ capitalize(user.role) }}</p>
+      <div v-if="user.id == currentUser?.id">
+        <router-link
+          class="button mt-4"
+          :to="{ name: 'AddLot', params: { id: user.id } }"
+        >
+          Create Lot
+        </router-link>
+      </div>
       <div v-if="user.lots && user.lots.length > 0">
         <h3 class="mt-4">User's Lots</h3>
         <ul class="grid grid-cols-3 gap-4 items-start w-full">

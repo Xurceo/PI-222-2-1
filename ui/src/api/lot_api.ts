@@ -1,11 +1,11 @@
-import axios from "axios";
 import type { ILot } from "../models/types/Lot.ts";
+import type { ICreateLot } from "../models/types/CreateLot.ts";
+import api from "../lib/axios.ts";
+import axios from "axios";
 
-const api = import.meta.env.VITE_API_URL;
-
-export async function addLot(category: ILot): Promise<void> {
+export async function addLot(lot: ICreateLot): Promise<void> {
   try {
-    await axios.post(`${api}/lots`, category);
+    await api.post(`/lots`, lot);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Axios error:", error.response?.data || error.message);
@@ -17,7 +17,7 @@ export async function addLot(category: ILot): Promise<void> {
 
 export async function getLots(): Promise<ILot[]> {
   try {
-    const response = await axios.get(`${api}/lots`);
+    const response = await api.get(`/lots`);
     return response.data as ILot[];
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -31,7 +31,7 @@ export async function getLots(): Promise<ILot[]> {
 
 export async function getLotById(id: string): Promise<ILot> {
   try {
-    const response = await axios.get(`${api}/lots/${id}`);
+    const response = await api.get(`/lots/${id}`);
     return response.data as ILot;
   } catch (error) {
     if (axios.isAxiosError(error)) {

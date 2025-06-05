@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { login } from "../../api/user_api.ts";
+import { apiLogin } from "../../api/user_api.ts";
 import router from "../../router.ts";
+import { useAuth } from "../../composables/useAuth.ts";
+
+const { currentUser } = useAuth();
 
 const username = ref("");
 const password = ref("");
@@ -13,9 +16,9 @@ const handleLogin = async () => {
   isLoading.value = true;
 
   try {
-    const user = await login(username.value, password.value);
-    router.push({ name: "Profile", params: { id: user.id } });
-    window.location.reload();
+    const user = await apiLogin(username.value, password.value);
+    currentUser.value = user;
+    router.back();
   } catch (err: any) {
     error.value = err.response?.data?.message || "Login failed";
   } finally {

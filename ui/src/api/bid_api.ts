@@ -1,15 +1,16 @@
 import axios from "axios";
-import type { IBid } from "../models/types/Bid.ts";
 import api from "../lib/axios.ts";
 
-export async function placeBid(lotId: string, amount: number): Promise<void> {
+export async function placeBid(lotId: string, amount: number): Promise<string> {
   try {
-    await api.post(`/bids`, { lotId, amount });
+    const res = await api.post(`/bids`, { lotId, amount });
+    return res.data as string; // "Bid placed successfully."
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Axios error:", error.response?.data || error.message);
+      const message = error.response?.data;
+      return typeof message === "string" ? message : "Error placing bid.";
     } else {
-      console.error("Unexpected error:", error);
+      return "Unexpected error occurred.";
     }
   }
 }

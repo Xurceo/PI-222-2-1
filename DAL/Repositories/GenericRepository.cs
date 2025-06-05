@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace DAL.Repositories
@@ -45,6 +46,7 @@ namespace DAL.Repositories
 
         public async Task<IEnumerable<TModel>> GetAll()
         {
+
             IQueryable<TModel> query = _dbSet;
 
             var navigationProperties = _context.Model.FindEntityType(typeof(TModel))?

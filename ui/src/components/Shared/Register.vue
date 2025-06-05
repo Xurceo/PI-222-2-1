@@ -3,11 +3,13 @@ import { ref } from "vue";
 import { registerUser } from "../../api/user_api.ts";
 import router from "../../router.ts";
 import type { IRegisterUser } from "../../models/types/RegisterUser.ts";
+import { useAuth } from "../../composables/useAuth.ts";
 
 const username = ref("");
 const password = ref("");
 const error = ref<string | null>(null);
 const isLoading = ref(false);
+const { currentUser, login } = useAuth();
 
 const handleRegister = async () => {
   error.value = null;
@@ -21,9 +23,8 @@ const handleRegister = async () => {
       username: username.value,
       password: password.value,
     };
-    const user = await registerUser(userData);
-    window.location.reload();
-    router.push({ name: "Profile", params: { id: user.id } });
+    await registerUser(userData);
+    await login(userData.username, userData.password);
   } catch (err: any) {
     error.value = err.response?.data?.message || "Register failed";
   } finally {

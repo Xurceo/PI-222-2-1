@@ -47,22 +47,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { getCurrentUser, logout } from "../../api/user_api.ts";
-import type { IUser } from "../../models/types/User.ts";
+import { onMounted } from "vue";
+import { useAuth } from "../../composables/useAuth.ts";
+import { getCurrentUser } from "../../api/user_api.ts";
 import { cookieExists } from "../../lib/auction.ts";
 
-const currentUser = ref<IUser | null>(null);
+const { currentUser, logout } = useAuth();
 
 onMounted(async () => {
-  try {
-    if (cookieExists("jwt")) {
-      return;
-    }
-    currentUser.value = await getCurrentUser();
-  } catch (error) {
-    currentUser.value = null; // Explicitly set to null if not authed
+  if (!cookieExists("jwt")) {
+    currentUser.value = null;
     return;
+  }
+
+  try {
+    const user = await getCurrentUser();
+    currentUser.value = user;
+  } catch (error) {
+    currentUser.value = null;
   }
 });
 
@@ -70,7 +72,6 @@ const handleLogout = async () => {
   try {
     await logout(); // Assuming this function handles logout
     currentUser.value = null; // Clear the current user
-    window.location.reload(); // Reload the page to reflect changes
   } catch (error) {
     console.error("Logout failed:", error);
   }

@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { ILot } from "../../models/types/Lot.ts";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { getLotById } from "../../api/lot_api.ts";
-import { useRouter } from "vue-router";
 import { statusMap } from "../../models/maps/statusMap.ts";
+import { IUser } from "../../models/types/User.ts";
+import { getAllUsers } from "../../api/user_api.ts";
 
 const lot = ref<ILot>();
+const bids = ref<ILot["bids"]>([]);
+const users = ref<IUser[]>([]);
+const now = ref(new Date());
+let intervalId: number | undefined = undefined;
 
 const props = defineProps<{
   id: string;
@@ -13,13 +18,53 @@ const props = defineProps<{
 
 onMounted(async () => {
   const lotId = props.id;
+  intervalId = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
   if (lotId) {
     try {
       lot.value = await getLotById(lotId);
+      users.value = await getAllUsers();
+      if (lot.value) {
+        bids.value = lot.value.bids.sort((a, b) => b.amount - a.amount);
+      }
+      bids.value.sort((b) => b.amount);
+
+      if (bids.value) {
+        bids.value = bids.value.map((bid) => ({
+          ...bid,
+          user: users.value.find((u) => u.id === bid.userId) || null,
+        }));
+      }
     } catch (error) {
-      useRouter().push({ name: "NotFound" });
+      console.error("Error fetching lot:", error);
     }
   }
+});
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+});
+
+const elapsed = computed<string | number>(() => {
+  const nowTime = now.value;
+  if (!lot.value || !lot.value.startTime) return 0;
+  const endTime = new Date(lot.value.endTime);
+
+  const seconds = Math.floor((endTime.getTime() - nowTime.getTime()) / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(months / 12);
+
+  let result = `${hours % 24}:${minutes % 60}:${seconds % 60}`;
+  if (years > 0) result = `${years} years, ${result}`;
+  if (months > 0) result = `${months} months, ${result}`;
+  if (days > 0) result = `${days} days, ${result}`;
+  result = `Time left: ${result}`;
+
+  return result;
 });
 </script>
 
@@ -33,12 +78,18 @@ onMounted(async () => {
       <p><strong>Owner:</strong> {{ lot.owner.username }}</p>
       <p><strong>Description:</strong> {{ lot.description }}</p>
       <p><strong>Starting Price:</strong> {{ lot.startPrice }} $</p>
-      <p><strong>Current Price:</strong> {{ lot.bids.sort()[0].amount }} $</p>
+      <p>
+        <strong>Current Price:</strong>
+        {{ bids.length > 0 ? bids[0].amount : lot.startPrice }} $
+      </p>
       <p><strong>Status:</strong> {{ statusMap[lot.status] }}</p>
       <p><strong>Category:</strong> {{ lot.category.name }}</p>
       <p v-if="lot.winner">
         <strong>Winner:</strong> {{ lot.winner.username }}
       </p>
+
+      <p v-if="lot.status == 2">{{ elapsed }}</p>
+
       <router-link
         v-if="lot.status === 2"
         :to="{ name: 'PlaceBid', params: { lotId: lot.id } }"
@@ -58,10 +109,10 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="bid in lot.bids" :key="bid.id" class="border-t">
+          <tr v-for="bid in bids" :key="bid.id" class="border-t">
             <td class="px-4 py-2">
               <router-link
-                :to="{ name: 'Profile', params: { id: bid.user.id } }"
+                :to="{ name: 'Profile', params: { id: bid.user?.id } }"
                 class="text-blue-600 hover:underline"
               >
                 {{ bid.user.username }}
@@ -69,7 +120,7 @@ onMounted(async () => {
             </td>
             <td class="px-4 py-2">{{ bid.amount }} $</td>
             <td class="px-4 py-2">
-              {{ new Date(bid.time).toLocaleString() }}
+              {{ bid.time.toLocaleString() }}
             </td>
           </tr>
         </tbody>

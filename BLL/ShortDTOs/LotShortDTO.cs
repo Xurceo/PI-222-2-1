@@ -17,7 +17,8 @@ namespace BLL.ShortDTOs
         public DateTime EndTime { get; set; }
         public required UserShortDTO Owner { get; set; }
         public UserShortDTO? Winner { get; set; }
-        public Guid? CategoryId { get; set; }
+        public required CategoryShortDTO Category { get; set; }
+        public IEnumerable<BidShortDTO> Bids { get; set; } = [];
     }
 
 }

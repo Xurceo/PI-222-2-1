@@ -24,11 +24,12 @@ namespace WebApi.Controllers
         public async Task<ActionResult<IEnumerable<LotShortDTO>>> GetAll()
         {
             var lots = await _lottingService.GetAllShort();
+            var getLots = await _lottingService.GetAll();
             return Ok(lots);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<LotDTO>> GetById(Guid id)
+        public async Task<ActionResult<LotShortDTO>> GetById(Guid id)
         {
             var lot = await _lottingService.GetById(id);
             if (lot == null)
@@ -43,7 +44,7 @@ namespace WebApi.Controllers
             return Ok(lots);
         }
 
-        [Authorize(Roles = "MANAGER,ADMIN")]
+        [Authorize(Roles = "MANAGER,USER,ADMIN")]
         [HttpPost]
         public async Task<ActionResult<Guid>> AddLot([FromBody] CreateLotDTO dto)
         {

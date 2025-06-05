@@ -38,6 +38,8 @@ namespace BLL.Service
                 throw new NotFoundException(category);
             }
 
+            lot.StartTime = DateTime.UtcNow;
+
             await _unitOfWork.Lots.Create(lot);
             await _unitOfWork.Lots.Save();
 
@@ -84,10 +86,10 @@ namespace BLL.Service
             return _mapper.Map<IEnumerable<LotDTO>>(filtered);
         }
 
-        public async Task<LotDTO?> GetById(Guid id)
+        public async Task<LotShortDTO?> GetById(Guid id)
         {
             var lot = await _unitOfWork.Lots.GetById(id);
-            return lot != null ? _mapper.Map<LotDTO>(lot) : null;
+            return lot != null ? _mapper.Map<LotShortDTO>(lot) : null;
         }
 
         public async Task UpdateLot(LotDTO dto)

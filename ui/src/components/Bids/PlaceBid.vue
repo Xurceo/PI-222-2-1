@@ -58,17 +58,15 @@ const placeBidHandler = async () => {
     return;
   }
 
+  let msg = null;
+
   try {
-    await placeBid(lot.value!.id, bidAmount.value);
+    msg = await placeBid(lot.value!.id, bidAmount.value);
     errorMessage.value = null;
-    alert("Bid placed successfully!");
-    setTimeout(() => {
-      router.push({ name: "Lot", params: { id: lot.value!.id } });
-      window.location.reload();
-    }, 1000); // Reload the page after 1 second to reflect the new bid
+    alert(msg);
+    router.push({ name: "Lot", params: { id: lot.value!.id } });
   } catch (error) {
-    errorMessage.value = "Failed to place bid. Please try again.";
-    console.error("Error placing bid:", error);
+    errorMessage.value = msg;
   }
 };
 </script>

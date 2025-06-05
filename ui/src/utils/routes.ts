@@ -5,6 +5,7 @@ import Lots from "../components/Lots/Lots.vue";
 import Users from "../components/Users/Users.vue";
 import AddCategory from "../components/Categories/AddCategory.vue";
 import AddLotToCategory from "../components/Lots/AddLotToCategory.vue";
+import AddLot from "../components/Lots/AddLot.vue";
 import Login from "../components/Shared/Login.vue";
 import Profile from "../components/Users/Profile.vue";
 import Lot from "../components/Lots/Lot.vue";
@@ -75,6 +76,12 @@ export const routes = [
     path: "/profile/:id",
     name: "Profile",
     component: Profile,
+    props: true,
+  },
+  {
+    path: "/profile/:id/create-lot",
+    name: "AddLot",
+    component: AddLot,
     props: true,
   },
 ];

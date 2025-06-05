@@ -15,7 +15,7 @@ onMounted(async () => {
 
 <template>
   <div class="users-container">
-    <h1 class="text-black p-10 text-2xl font-semibold mb-6">Users</h1>
+    <h1 class="text-black p-10 text-2xl mb-6">Users</h1>
     <ul class="user-list">
       <li v-for="user in users" :key="user.id" class="user-item">
         <router-link :to="{ name: 'Profile', params: { id: user.id } }">

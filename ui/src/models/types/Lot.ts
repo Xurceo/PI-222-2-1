@@ -13,4 +13,6 @@ export interface ILot {
   category: ICategory;
   bids: IBid[];
   status: LotStatus;
+  startTime: Date;
+  endTime: Date;
 }
