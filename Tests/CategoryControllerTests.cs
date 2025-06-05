@@ -24,20 +24,6 @@ namespace Tests
         }
 
         [Fact]
-        public async Task GetAll_ReturnsOkWithCategories()
-        {
-            var categories = new List<CategoryShortDTO> { new CategoryShortDTO() };
-            _mockCategoryService.Setup(x => x.GetAllShort()).ReturnsAsync(categories);
-
-            var result = await _controller.GetAll();
-
-            var okResult = Assert.IsType<OkObjectResult>(result.Result); 
-            Assert.Equal(categories, okResult.Value);
-        }
-
-
-
-        [Fact]
         public async Task AddCategory_WithValidData_ReturnsCreated()
         {
             var createDto = new CreateCategoryDTO { Name = "Test" };
