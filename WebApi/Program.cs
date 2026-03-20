@@ -130,3 +130,4 @@ app.UseRequestLocalization();
 app.MapControllers();
 
 app.Run();
+//release 1.0
