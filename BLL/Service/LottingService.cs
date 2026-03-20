@@ -18,30 +18,30 @@ namespace BLL.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> AddLot(CreateLotDTO dto)
+        public async Task<Guid> AddLot(CreateLotDTO lot)
         {
-            var lot = _mapper.Map<Lot>(dto);
-            if (dto.OwnerId == null)
+            var mappedLot = _mapper.Map<Lot>(lot);
+            if (lot.OwnerId == null)
             {
                 throw new ArgumentException("OwnerId cannot be null");
             }
-            var owner = await _unitOfWork.Users.GetById(dto.OwnerId.Value);
+            var owner = await _unitOfWork.Users.GetById(lot.OwnerId.Value);
             if (owner == null)
             {
-                throw new NotFoundException(owner);
+                throw new NotFoundException(typeof(User));
             }
-            var category = await _unitOfWork.Categories.GetById(dto.CategoryId);
+            var category = await _unitOfWork.Categories.GetById(lot.CategoryId);
             if (category == null)
             {
-                throw new NotFoundException(category);
+                throw new NotFoundException(typeof(Category));
             }
 
-            lot.StartTime = DateTime.UtcNow;
+            mappedLot.StartTime = DateTime.UtcNow;
 
-            await _unitOfWork.Lots.Create(lot);
+            await _unitOfWork.Lots.Create(mappedLot);
             await _unitOfWork.Lots.Save();
 
-            return lot.Id;
+            return mappedLot.Id;
         }
 
         public async Task ChangeLotStatus(Guid lotId, LotStatus status)
@@ -49,7 +49,7 @@ namespace BLL.Service
             var lot = await _unitOfWork.Lots.GetById(lotId);
             if (lot == null)
             {
-                throw new NotFoundException(lot);
+                throw new NotFoundException(typeof(Lot));
             }
             lot.Status = status;
             if (status == LotStatus.Sold)
@@ -90,27 +90,27 @@ namespace BLL.Service
             }
         }
 
-        public async Task UpdateLot(LotDTO dto)
+        public async Task UpdateLot(LotDTO lot)
         {
-            var lot = await _unitOfWork.Lots.GetById(dto.Id);
+            var dbLot = await _unitOfWork.Lots.GetById(lot.Id);
 
-            ArgumentNullException.ThrowIfNull(lot, "Lot not found");
+            ArgumentNullException.ThrowIfNull(dbLot, "Lot not found");
 
-            _mapper.Map(dto, lot);
+            _mapper.Map(lot, dbLot);
 
-            if (dto.BidIds != null)
+            if (lot.BidIds != null)
             {
                 // Get existing bids to remove (those not in the new list)
-                var bidsToRemove = lot.Bids
-                    .Where(b => !dto.BidIds.Contains(b.Id))
+                var bidsToRemove = dbLot.Bids
+                    .Where(b => !lot.BidIds.Contains(b.Id))
                     .ToList();
                 // Get bids to add (those not already in the collection)
-                var existingBidIds = lot.Bids.Select(b => b.Id).ToList();
-                var bidsToAddIds = dto.BidIds.Except(existingBidIds);
+                var existingBidIds = dbLot.Bids.Select(b => b.Id).ToList();
+                var bidsToAddIds = lot.BidIds.Except(existingBidIds);
                 // Remove bids
                 foreach (var bid in bidsToRemove)
                 {
-                    lot.Bids.Remove(bid);
+                    dbLot.Bids.Remove(bid);
                 }
                 // Add new bids
                 foreach (var bidId in bidsToAddIds)
@@ -118,12 +118,12 @@ namespace BLL.Service
                     var bid = await _unitOfWork.Bids.GetById(bidId);
                     if (bid != null)
                     {
-                        lot.Bids.Add(bid);
+                        dbLot.Bids.Add(bid);
                     }
                 }
             }
 
-            await _unitOfWork.Lots.Update(lot);
+            await _unitOfWork.Lots.Update(dbLot);
             await _unitOfWork.Lots.Save();
         }
     }

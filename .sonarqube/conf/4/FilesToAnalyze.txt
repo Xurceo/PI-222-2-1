@@ -1,0 +1,12 @@
+﻿G:\PI-222-2-1\Tests\AuthControllerTests.cs
+G:\PI-222-2-1\Tests\BidControllerTests.cs
+G:\PI-222-2-1\Tests\CategoryControllerTests.cs
+G:\PI-222-2-1\Tests\LotControllerTests.cs
+G:\PI-222-2-1\Tests\TokenProviderTests.cs
+G:\PI-222-2-1\Tests\UserControllerTests.cs
+C:\Users\Павло\.nuget\packages\microsoft.net.test.sdk\17.8.0\build\netcoreapp3.1\Microsoft.NET.Test.Sdk.Program.cs
+C:\Users\Павло\.nuget\packages\microsoft.testplatform.testhost\17.8.0\build\netcoreapp3.1\x64\testhost.exe
+C:\Users\Павло\.nuget\packages\microsoft.testplatform.testhost\17.8.0\build\netcoreapp3.1\x64\testhost.dll
+C:\Users\Павло\.nuget\packages\xunit.runner.visualstudio\2.5.3\build\net6.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
+C:\Users\Павло\.nuget\packages\xunit.runner.visualstudio\2.5.3\build\net6.0\xunit.runner.reporters.netcoreapp10.dll
+C:\Users\Павло\.nuget\packages\xunit.runner.visualstudio\2.5.3\build\net6.0\xunit.runner.utility.netcoreapp10.dll

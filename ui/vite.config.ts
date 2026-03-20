@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
         cert: fs.readFileSync("localhost.pem"),
       },
       host: env.VITE_HOST || "localhost",
-      port: parseInt(env.VITE_PORT, 10) || 3000,
+      port: Number.parseInt(env.VITE_PORT, 10) || 3000,
       proxy: {
         "/api": {
           target: apiBase,

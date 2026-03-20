@@ -74,11 +74,18 @@ namespace WebApi.Controllers
         public async Task<IActionResult> UpdateUserPassword(Guid id, [FromBody] string newPassword)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userGuid = string.IsNullOrEmpty(userId) ? Guid.Empty : Guid.Parse(userId);
-            if (userGuid != id && !User.IsInRole("ADMIN") && !User.IsInRole("MANAGER"))
+
+            Guid.TryParse(userId, out var userGuid);
+
+            var isAdmin = User.IsInRole("ADMIN");
+            var isManager = User.IsInRole("MANAGER");
+            var isOwner = userGuid == id;
+
+            if (!isOwner && !isAdmin && !isManager)
             {
                 return Forbid();
             }
+
             await _userService.UpdateUserPassword(id, newPassword);
             return NoContent();
         }

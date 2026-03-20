@@ -3,7 +3,7 @@ using DAL.Repositories;
 
 namespace DAL.UoW
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
         private readonly AuctionDbContext _context;
 
@@ -35,22 +35,19 @@ namespace DAL.UoW
         }
 
         private bool _disposed = false;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-                _disposed = true;
-            }
-        }
+        private readonly object _disposeLock = new();
 
         public void Dispose()
         {
-            Dispose(true);
+            lock (_disposeLock)
+            {
+                if (_disposed) return;
+
+                // UnitOfWork owns the DbContext and should dispose it when disposed.
+                _context.Dispose();
+                _disposed = true;
+            }
+
             GC.SuppressFinalize(this);
         }
     }

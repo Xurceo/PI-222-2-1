@@ -5,6 +5,7 @@ using BLL.Utility;
 using DAL.Models;
 using DAL.UoW;
 using BLL.CreateDTOs;
+using BLL.Exceptions;
 
 namespace BLL.Service
 {
@@ -19,15 +20,15 @@ namespace BLL.Service
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Guid> AddUser(CreateUserDTO dto)
+        public async Task<Guid> AddUser(CreateUserDTO user)
         {
-            var user = _mapper.Map<User>(dto);
-            user.PasswordHash = PasswordHelper.HashPassword(dto.Password);
+            var mappedUser = _mapper.Map<User>(user);
+            mappedUser.PasswordHash = PasswordHelper.HashPassword(user.Password);
 
-            await _unitOfWork.Users.Create(user);
+            await _unitOfWork.Users.Create(mappedUser);
             await _unitOfWork.Users.Save();
 
-            return user.Id;
+            return mappedUser.Id;
         }
 
         public async Task DeleteUser(Guid id)
@@ -66,66 +67,78 @@ namespace BLL.Service
             return user != null ? _mapper.Map<UserDTO>(user) : null;
         }
 
-        public async Task UpdateUser(UserDTO dto)
+        public async Task UpdateUser(UserDTO user)
         {
-            var user = await _unitOfWork.Users.GetById(dto.Id);
+            var mappedUser = await _unitOfWork.Users.GetById(user.Id);
 
-            ArgumentNullException.ThrowIfNull(user, "User not found");
+            ArgumentNullException.ThrowIfNull(mappedUser, "User not found");
 
-            _mapper.Map(dto, user);
+            _mapper.Map(user, mappedUser);
 
-            if (dto.BidIds != null)
+            if (user.BidIds != null)
             {
-                // Get existing bids to remove (those not in the new list)
-                var bidsToRemove = user.Bids
-                    .Where(b => !dto.BidIds.Contains(b.Id))
-                    .ToList();
-                // Get bids to add (those not already in the collection)
-                var existingBidIds = user.Bids.Select(b => b.Id).ToList();
-                var bidsToAddIds = dto.BidIds.Except(existingBidIds);
-                // Remove bids
-                foreach (var bid in bidsToRemove)
-                {
-                    user.Bids.Remove(bid);
-                }
-                // Add new bids
-                foreach (var bidId in bidsToAddIds)
-                {
-                    var bid = await _unitOfWork.Bids.GetById(bidId);
-                    if (bid != null)
-                    {
-                        user.Bids.Add(bid);
-                    }
-                }
+                await SyncBids(mappedUser, user.BidIds);
             }
 
-            if (dto.LotIds != null)
+            if (user.LotIds != null)
             {
-                // Get existing lots to remove (those not in the new list)
-                var lotsToRemove = user.Lots
-                    .Where(l => !dto.LotIds.Contains(l.Id))
-                    .ToList();
-                // Get lots to add (those not already in the collection)
-                var existingLotIds = user.Lots.Select(l => l.Id).ToList();
-                var lotsToAddIds = dto.LotIds.Except(existingLotIds);
-                // Remove lots
-                foreach (var lot in lotsToRemove)
-                {
-                    user.Lots.Remove(lot);
-                }
-                // Add new lots
-                foreach (var lotId in lotsToAddIds)
-                {
-                    var lot = await _unitOfWork.Lots.GetById(lotId);
-                    if (lot != null)
-                    {
-                        user.Lots.Add(lot);
-                    }
-                }
+                await SyncLots(mappedUser, user.LotIds);
             }
 
-            await _unitOfWork.Users.Update(user);
+            await _unitOfWork.Users.Update(mappedUser);
             await _unitOfWork.Users.Save();
+        }
+
+        private async Task SyncBids(User mappedUser, IEnumerable<Guid> bidIds)
+        {
+            // Удаляем ставки, которых нет в новом списке
+            var bidsToRemove = mappedUser.Bids
+                .Where(b => !bidIds.Contains(b.Id))
+                .ToList();
+
+            foreach (var bid in bidsToRemove)
+            {
+                mappedUser.Bids.Remove(bid);
+            }
+
+            // Добавляем новые ставки, которых ещё нет в коллекции
+            var existingBidIds = mappedUser.Bids.Select(b => b.Id).ToHashSet();
+            var bidsToAddIds = bidIds.Except(existingBidIds);
+
+            foreach (var bidId in bidsToAddIds)
+            {
+                var bid = await _unitOfWork.Bids.GetById(bidId);
+                if (bid != null)
+                {
+                    mappedUser.Bids.Add(bid);
+                }
+            }
+        }
+
+        private async Task SyncLots(User mappedUser, IEnumerable<Guid> lotIds)
+        {
+            // Удаляем лоты, которых нет в новом списке
+            var lotsToRemove = mappedUser.Lots
+                .Where(l => !lotIds.Contains(l.Id))
+                .ToList();
+
+            foreach (var lot in lotsToRemove)
+            {
+                mappedUser.Lots.Remove(lot);
+            }
+
+            // Добавляем новые лоты, которых ещё нет в коллекции
+            var existingLotIds = mappedUser.Lots.Select(l => l.Id).ToHashSet();
+            var lotsToAddIds = lotIds.Except(existingLotIds);
+
+            foreach (var lotId in lotsToAddIds)
+            {
+                var lot = await _unitOfWork.Lots.GetById(lotId);
+                if (lot != null)
+                {
+                    mappedUser.Lots.Add(lot);
+                }
+            }
         }
 
         public async Task UpdateUserPassword(Guid id, string newPassword)
@@ -139,25 +152,25 @@ namespace BLL.Service
             }
             else
             {
-                throw new Exception("User not found");
+                throw new NotFoundException(typeof(User));
             }
         }
 
-        public async Task<UserDTO> Authenticate(LoginDTO dto)
+        public async Task<UserDTO> Authenticate(LoginDTO user)
         {
             // Шукаємо користувача по username
             var users = await _unitOfWork.Users.GetAll();
-            var user = users.FirstOrDefault(u => u.Username == dto.Username);
+            var dbUser = users.FirstOrDefault(u => u.Username == user.Username);
 
-            if (user == null)
-                throw new Exception("User not found");
+            if (dbUser == null)
+                throw new NotFoundException(typeof(User));
 
             // Перевіряємо пароль
-            if (!PasswordHelper.VerifyPassword(dto.Password, user.PasswordHash))
-                throw new Exception("Invalid password");
+            if (!PasswordHelper.VerifyPassword(user.Password, dbUser.PasswordHash))
+                throw new ArgumentException("Invalid password");
 
             // Мапимо і повертаємо UserDTO (без пароля)
-            return _mapper.Map<UserDTO>(user);
+            return _mapper.Map<UserDTO>(dbUser);
         }
     }
 }

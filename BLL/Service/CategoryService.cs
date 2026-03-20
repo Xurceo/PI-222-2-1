@@ -4,6 +4,10 @@ using BLL.DTOs;
 using DAL.Models;
 using DAL.UoW;
 using BLL.CreateDTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BLL.Service
 {
@@ -16,22 +20,23 @@ namespace BLL.Service
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public async Task<Guid> AddCategory(CreateCategoryDTO dto)
+
+        public async Task<Guid> AddCategory(CreateCategoryDTO category)
         {
-            if (dto == null)
+            if (category == null)
             {
-                throw new ArgumentNullException(nameof(dto), "Category data cannot be null");
+                throw new ArgumentNullException(nameof(category), "Category data cannot be null");
             }
-            if (dto.ParentId.HasValue && !await _unitOfWork.Categories.Exists(dto.ParentId.Value))
+            if (category.ParentId.HasValue && !await _unitOfWork.Categories.Exists(category.ParentId.Value))
             {
-                throw new ArgumentException($"Parent category with id {dto.ParentId} does not exist", nameof(dto.ParentId));
+                throw new ArgumentException($"Parent category with id {category.ParentId} does not exist", nameof(category));
             }
 
-            var category = _mapper.Map<Category>(dto);
+            var mappedCategory = _mapper.Map<Category>(category);
 
-            await _unitOfWork.Categories.Create(category);
+            await _unitOfWork.Categories.Create(mappedCategory);
             await _unitOfWork.Categories.Save();
-            return category.Id;
+            return mappedCategory.Id;
         }
         public async Task DeleteCategory(Guid id)
         {
@@ -66,67 +71,92 @@ namespace BLL.Service
             }
             return _mapper.Map<IEnumerable<CategoryDTO>>(parentCategory.Subcategories);
         }
-        public async Task UpdateCategory(CategoryDTO dto)
+
+        /// <summary>
+        /// Обновляет категорию: валидация, маппинг скалярных полей, синхронизация коллекций.
+        /// Основная логика разбита на приватные методы для лучшей читаемости.
+        /// </summary>
+        public async Task UpdateCategory(CategoryDTO category)
         {
-            var category = await _unitOfWork.Categories.GetById(dto.Id);
+            ArgumentNullException.ThrowIfNull(category);
 
-            ArgumentNullException.ThrowIfNull(category, "Category not found");
+            var dbCategory = await _unitOfWork.Categories.GetById(category.Id) ?? throw new ArgumentException("Category not found", nameof(category));
 
-            _mapper.Map(dto, category);
+            await ValidateParentAsync(category);
 
-            if (dto.LotIds != null)
-            {
-                // Get existing bids to remove (those not in the new list)
-                var lotsToRemove = category.Lots
-                    .Where(l => !dto.LotIds.Contains(l.Id))
-                    .ToList();
+            // Map scalar properties only — keep navigation collections in sync manually
+            _mapper.Map(category, dbCategory);
 
-                // Get bids to add (those not already in the collection)
-                var existingLotIds = category.Lots.Select(l => l.Id).ToList();
-                var lotsToAddIds = dto.LotIds.Except(existingLotIds);
+            await SyncLotsAsync(category, dbCategory);
+            await SyncSubcategoriesAsync(category, dbCategory);
 
-                // Remove bids
-                foreach (var lot in lotsToRemove)
-                {
-                    category.Lots.Remove(lot);
-                }
-
-                // Add new bids
-                foreach (var lotId in lotsToAddIds)
-                {
-                    var lot = await _unitOfWork.Lots.GetById(lotId);
-                    if (lot != null)
-                    {
-                        category.Lots.Add(lot);
-                    }
-                }
-            }
-
-            if (dto.SubcategoryIds != null)
-            {
-                var subcategoriesToRemove = category.Subcategories
-                    .Where(sc => !dto.SubcategoryIds.Contains(sc.Id))
-                    .ToList();
-                var existingSubcategoryIds = category.Subcategories.Select(sc => sc.Id).ToList();
-                var subcategoriesToAddIds = dto.SubcategoryIds.Except(existingSubcategoryIds);
-                // Remove subcategories
-                foreach (var subcategory in subcategoriesToRemove)
-                {
-                    category.Subcategories.Remove(subcategory);
-                }
-                // Add new subcategories
-                foreach (var subcategory in existingSubcategoryIds)
-                {
-                    var subcategoryEntity = await _unitOfWork.Categories.GetById(subcategory);
-                    if (subcategoryEntity != null)
-                    {
-                        category.Subcategories.Add(subcategoryEntity);
-                    }
-                }
-            }
-
-            await _unitOfWork.Categories.Update(category);
+            await _unitOfWork.Categories.Update(dbCategory);
             await _unitOfWork.Categories.Save();
+        }
+
+        // Проверяет ParentId на корректность (самостоятельность и существование)
+        private async Task ValidateParentAsync(CategoryDTO category)
+        {
+            if (category.ParentId.HasValue)
+            {
+                if (category.ParentId.Value == category.Id)
+                    throw new ArgumentException("Category cannot be parent of itself", nameof(category));
+
+                if (!await _unitOfWork.Categories.Exists(category.ParentId.Value))
+                    throw new ArgumentException($"Parent category with id {category.ParentId} does not exist", nameof(category));
+            }
+        }
+
+        // Синхронизация коллекции Lots в dbCategory с id'ами из DTO
+        private async Task SyncLotsAsync(CategoryDTO category, Category dbCategory)
+        {
+            if (category.LotIds == null)
+                return;
+
+            dbCategory.Lots ??= new List<Lot>();
+
+            var existingLots = dbCategory.Lots;
+            var existingLotIds = existingLots.Select(l => l.Id).ToHashSet();
+
+            // Удаляем лоты, которых нет в DTO
+            var lotsToRemove = existingLots.Where(l => !category.LotIds.Contains(l.Id)).ToList();
+            foreach (var lot in lotsToRemove)
+                existingLots.Remove(lot);
+
+            // Добавляем отсутствующие лоты
+            var lotsToAddIds = category.LotIds.Where(id => !existingLotIds.Contains(id));
+            foreach (var lotId in lotsToAddIds)
+            {
+                var lot = await _unitOfWork.Lots.GetById(lotId);
+                if (lot != null)
+                    existingLots.Add(lot);
+            }
+        }
+
+        // Синхронизация коллекции Subcategories в dbCategory с id'ами из DTO
+        private async Task SyncSubcategoriesAsync(CategoryDTO category, Category dbCategory)
+        {
+            if (category.SubcategoryIds == null)
+                return;
+
+            dbCategory.Subcategories ??= new List<Category>();
+
+            var existingSubs = dbCategory.Subcategories;
+            var existingSubIds = existingSubs.Select(sc => sc.Id).ToHashSet();
+
+            // Удаляем субкатегории, которых нет в DTO
+            var subsToRemove = existingSubs.Where(sc => !category.SubcategoryIds.Contains(sc.Id)).ToList();
+            foreach (var sc in subsToRemove)
+                existingSubs.Remove(sc);
+
+            // Добавляем отсутствующие субкатегории (избегаем добавления самой категории)
+            var subsToAddIds = category.SubcategoryIds.Where(id => id != dbCategory.Id && !existingSubIds.Contains(id));
+            foreach (var subId in subsToAddIds)
+            {
+                var subEntity = await _unitOfWork.Categories.GetById(subId);
+                if (subEntity != null)
+                    existingSubs.Add(subEntity);
+            }
         }
     }
 }

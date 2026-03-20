@@ -14,7 +14,7 @@ namespace DAL
 
         public AuctionDbContext()
         {
-            var dalDir = Path.GetDirectoryName(AppContext.BaseDirectory);
+            var dalDir = Path.GetDirectoryName(AppContext.BaseDirectory) ?? throw new InvalidOperationException("Could not determine the directory for the database file.");
             _dbPath = Path.Combine(dalDir, "auction.db");
         }
 

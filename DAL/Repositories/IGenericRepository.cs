@@ -11,6 +11,6 @@ namespace DAL.Repositories
         Task Update(TModel model);
         void Delete(Guid id);
         Task Save();
-        Task<bool> Exists(Guid value);
+        Task<bool> Exists(Guid id);
     }
 }
