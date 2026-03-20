@@ -30,8 +30,6 @@ namespace Tests
             Assert.Equal(categories, okResult.Value);
         }
 
-
-
         [Fact]
         public async Task AddCategory_WithValidData_ReturnsCreated()
         {
@@ -43,7 +41,6 @@ namespace Tests
 
             Assert.IsType<OkObjectResult>(result.Result);
         }
-
     }
-
 }
+// asd
